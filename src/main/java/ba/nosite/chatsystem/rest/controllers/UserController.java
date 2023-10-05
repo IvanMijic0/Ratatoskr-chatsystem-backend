@@ -11,7 +11,6 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/user")
 public class UserController {
-
     private final UserService userService;
 
     public UserController(UserService userService) {
@@ -25,11 +24,19 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<User> createUser(@RequestBody User user) {
-        UUID userId = UUID.randomUUID();
-        user.set_id(userId);
-
         User createdUser = userService.insert(user);
-
         return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
+    }
+
+    @PatchMapping("/{userId}")
+    public ResponseEntity<User> updateUser(@PathVariable UUID userId, @RequestBody User updatedUser) {
+        User updated = userService.update(userId, updatedUser);
+        return ResponseEntity.ok(updated);
+    }
+
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<Void> deleteUser(@PathVariable UUID userId) {
+        userService.delete(userId);
+        return ResponseEntity.noContent().build();
     }
 }
