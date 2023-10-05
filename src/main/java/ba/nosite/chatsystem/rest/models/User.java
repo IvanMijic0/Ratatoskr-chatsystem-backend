@@ -3,6 +3,7 @@ package ba.nosite.chatsystem.rest.models;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.UUID;
@@ -15,12 +16,9 @@ public class User {
     private UUID _id;
     private String first_name;
     private String last_name;
+    @Indexed(unique = true)
     private String email;
 
-    public User(String first_name, String last_name, String email) {
-        this._id = UUID.randomUUID();
-        this.first_name = first_name;
-        this.last_name = last_name;
-        this.email = email;
+    public User() {
     }
 }
