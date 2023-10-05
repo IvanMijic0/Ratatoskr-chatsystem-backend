@@ -1,5 +1,6 @@
 package ba.nosite.chatsystem.rest.controllers;
 
+import ba.nosite.chatsystem.rest.exceptions.custom.UserNotFoundException;
 import ba.nosite.chatsystem.rest.models.User;
 import ba.nosite.chatsystem.rest.services.UserService;
 import org.springframework.http.HttpStatus;
@@ -18,8 +19,13 @@ public class UserController {
     }
 
     @GetMapping
-    public Iterable<User> list() {
-        return userService.list();
+    public ResponseEntity<?> list() {
+        try {
+            Iterable<User> users = userService.list();
+            return ResponseEntity.ok(users);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while fetching the user list: " + e.getMessage());
+        }
     }
 
     @PostMapping
@@ -29,14 +35,22 @@ public class UserController {
     }
 
     @PatchMapping("/{userId}")
-    public ResponseEntity<User> updateUser(@PathVariable UUID userId, @RequestBody User updatedUser) {
-        User updated = userService.update(userId, updatedUser);
-        return ResponseEntity.ok(updated);
+    public ResponseEntity<?> updateUser(@PathVariable UUID userId, @RequestBody User updatedUser) {
+        try {
+            User updated = userService.update(userId, updatedUser);
+            return ResponseEntity.ok(updated);
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 
     @DeleteMapping("/{userId}")
-    public ResponseEntity<Void> deleteUser(@PathVariable UUID userId) {
-        userService.delete(userId);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<String> deleteUser(@PathVariable UUID userId) {
+        try {
+            userService.delete(userId);
+            return ResponseEntity.status(HttpStatus.OK).body("User with ID " + userId + " has been successfully deleted.");
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 }
