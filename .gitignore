@@ -33,4 +33,4 @@ build/
 .vscode/
 
 ### Env Vars ###
-**/src/main/resources/application.properties
+**/src/main/**/application.properties
