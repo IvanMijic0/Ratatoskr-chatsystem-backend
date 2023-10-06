@@ -40,7 +40,6 @@ public class AuthService {
         return JwtAuthenticationResponse.builder().token(jwt).build();
     }
 
-
     public ResponseEntity<JwtAuthenticationResponse> login(LoginRequest request) {
         try {
             authManager.authenticate(
