@@ -1,31 +1,39 @@
 package ba.nosite.chatsystem.rest.services;
 
-import ba.nosite.chatsystem.rest.exceptions.custom.UserNotFoundException;
+import ba.nosite.chatsystem.rest.configurations.UserNotFoundException;
 import ba.nosite.chatsystem.rest.models.User;
 import ba.nosite.chatsystem.rest.repository.UserRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalTime;
 import java.util.Optional;
-import java.util.UUID;
 
 @AllArgsConstructor
 @Service
 public class UserService {
     private final UserRepository userRepository;
 
-    public User insert(User user) {
-        UUID userId = UUID.randomUUID();
-        user.set_id(userId);
+    public UserDetailsService userDetailsService() {
+        return username -> userRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("Username not found!"));
+    }
 
-        return userRepository.save(user);
+    public User save(User newUser) {
+        if (newUser.get_id() == null) {
+            newUser.setCreatedAt(LocalTime.now());
+        }
+
+        newUser.setUpdatedAt(LocalTime.now());
+        return userRepository.save(newUser);
     }
 
     public Iterable<User> list() {
         return userRepository.findAll();
     }
 
-    public User update(UUID userId, User updatedUser) {
+    public User update(String userId, User updatedUser) {
         Optional<User> existingUser = userRepository.findById(userId);
 
         if (existingUser.isPresent()) {
@@ -39,6 +47,7 @@ public class UserService {
             if (updatedUser.getEmail() != null) {
                 userToUpdate.setEmail(updatedUser.getEmail());
             }
+            updatedUser.setUpdatedAt(LocalTime.now());
 
             return userRepository.save(userToUpdate);
         } else {
@@ -46,7 +55,7 @@ public class UserService {
         }
     }
 
-    public void delete(UUID userId) {
+    public void delete(String userId) {
         Optional<User> existingUser = userRepository.findById(userId);
         if (existingUser.isPresent()) {
             userRepository.deleteById(userId);
