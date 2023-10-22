@@ -31,7 +31,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public JwtAuthenticationResponse login(@RequestBody LoginRequest request) {
-        return authService.login(request).getBody();
+        return authService.login(request);
     }
 
     @GetMapping("/verify")

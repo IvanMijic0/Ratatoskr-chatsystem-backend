@@ -3,12 +3,12 @@ package ba.nosite.chatsystem.core.services;
 import ba.nosite.chatsystem.core.dto.JwtAuthenticationResponse;
 import ba.nosite.chatsystem.core.dto.LoginRequest;
 import ba.nosite.chatsystem.core.dto.RegisterRequest;
+import ba.nosite.chatsystem.core.exceptions.auth.AuthenticationException;
 import ba.nosite.chatsystem.core.models.Role;
 import ba.nosite.chatsystem.core.models.User;
 import ba.nosite.chatsystem.core.repository.UserRepository;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -56,8 +56,7 @@ public class AuthService {
         emailSenderService.sendVerificationEmail(user, siteUrl);
     }
 
-    public ResponseEntity<JwtAuthenticationResponse> login(LoginRequest request) {
-
+    public JwtAuthenticationResponse login(LoginRequest request) {
         try {
             authManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
@@ -67,11 +66,9 @@ public class AuthService {
 
             String jwt = jwtService.generateToken(user);
 
-            return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
+            return ResponseEntity.ok(new JwtAuthenticationResponse(jwt)).getBody();
         } catch (Exception ex) {
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body(new JwtAuthenticationResponse("Authentication failed"));
+            throw new AuthenticationException("Invalid Credentials");
         }
     }
 
