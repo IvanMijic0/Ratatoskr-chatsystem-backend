@@ -1,9 +1,8 @@
-package ba.nosite.chatsystem.rest.services;
+package ba.nosite.chatsystem.core.services;
 
+import ba.nosite.chatsystem.core.models.User;
+import ba.nosite.chatsystem.core.repository.UserRepository;
 import ba.nosite.chatsystem.rest.configurations.UserNotFoundException;
-import ba.nosite.chatsystem.rest.models.User;
-import ba.nosite.chatsystem.rest.repository.UserRepository;
-import lombok.AllArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -11,10 +10,13 @@ import org.springframework.stereotype.Service;
 import java.time.LocalTime;
 import java.util.Optional;
 
-@AllArgsConstructor
 @Service
 public class UserService {
     private final UserRepository userRepository;
+
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     public UserDetailsService userDetailsService() {
         return username -> userRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("Username not found!"));

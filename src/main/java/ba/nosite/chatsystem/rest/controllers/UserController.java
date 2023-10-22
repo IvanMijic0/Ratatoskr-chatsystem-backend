@@ -1,19 +1,21 @@
 package ba.nosite.chatsystem.rest.controllers;
 
+import ba.nosite.chatsystem.core.models.User;
+import ba.nosite.chatsystem.core.services.UserService;
 import ba.nosite.chatsystem.rest.configurations.UserNotFoundException;
-import ba.nosite.chatsystem.rest.models.User;
-import ba.nosite.chatsystem.rest.services.UserService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("api/v1/user")
 public class UserController {
     private final UserService userService;
+
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")

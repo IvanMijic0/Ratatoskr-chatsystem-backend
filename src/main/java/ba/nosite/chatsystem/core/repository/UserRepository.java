@@ -1,6 +1,6 @@
-package ba.nosite.chatsystem.rest.repository;
+package ba.nosite.chatsystem.core.repository;
 
-import ba.nosite.chatsystem.rest.models.User;
+import ba.nosite.chatsystem.core.models.User;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.Optional;

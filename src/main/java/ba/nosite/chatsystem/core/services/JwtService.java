@@ -1,4 +1,4 @@
-package ba.nosite.chatsystem.rest.services;
+package ba.nosite.chatsystem.core.services;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -17,10 +17,10 @@ import java.util.function.Function;
 
 @Service
 public class JwtService {
-    @Value("${token.secret.key}")
+    @Value("${authentication.token.secret.key}")
     String jwtSecretKey;
 
-    @Value("${token.expirationms}")
+    @Value("${authentication.token.expirationms}")
     Long jwtExpirationMs;
 
     public String extractUsername(String token) {

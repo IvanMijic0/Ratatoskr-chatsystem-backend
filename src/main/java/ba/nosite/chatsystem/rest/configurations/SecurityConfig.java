@@ -1,8 +1,7 @@
 package ba.nosite.chatsystem.rest.configurations;
 
-import ba.nosite.chatsystem.rest.filters.JwtAuthenticationFilter;
-import ba.nosite.chatsystem.rest.services.UserService;
-import lombok.RequiredArgsConstructor;
+import ba.nosite.chatsystem.core.filters.JwtAuthenticationFilter;
+import ba.nosite.chatsystem.core.services.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -24,11 +23,16 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-@RequiredArgsConstructor
 public class SecurityConfig extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity> {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final UserService userService;
     private final BCryptPasswordEncoder passwordEncoder;
+
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter, UserService userService, BCryptPasswordEncoder passwordEncoder) {
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.userService = userService;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @Bean
     public AuthenticationProvider authenticationProvider() {

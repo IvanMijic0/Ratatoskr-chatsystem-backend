@@ -34,3 +34,4 @@ build/
 
 ### Env Vars ###
 **/src/main/**/application.properties
+**/src/main/**/application.yaml

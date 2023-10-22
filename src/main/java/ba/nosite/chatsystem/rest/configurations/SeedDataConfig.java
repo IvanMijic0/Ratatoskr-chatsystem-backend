@@ -1,37 +1,38 @@
 package ba.nosite.chatsystem.rest.configurations;
 
-import ba.nosite.chatsystem.rest.models.Role;
-import ba.nosite.chatsystem.rest.models.User;
-import ba.nosite.chatsystem.rest.repository.UserRepository;
-import ba.nosite.chatsystem.rest.services.UserService;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import ba.nosite.chatsystem.core.models.Role;
+import ba.nosite.chatsystem.core.models.User;
+import ba.nosite.chatsystem.core.repository.UserRepository;
+import ba.nosite.chatsystem.core.services.UserService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
-@RequiredArgsConstructor
-@Slf4j
 public class SeedDataConfig implements CommandLineRunner {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final UserService userService;
 
+    public SeedDataConfig(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder, UserService userService) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.userService = userService;
+    }
+
     @Override
     public void run(String... args) {
         if (userRepository.count() == 0) {
-            User admin = User
-                    .builder()
-                    .first_name("admin")
-                    .last_name("admin")
-                    .email("admin@admin.com")
-                    .password(passwordEncoder.encode("password"))
-                    .role(Role.ROLE_ADMIN)
-                    .build();
+            User admin = new User(
+                    "admin",
+                    "admin",
+                    "admin@admin.com",
+                    passwordEncoder.encode("password"),
+                    Role.ROLE_ADMIN
+            );
 
             userService.save(admin);
-            log.debug("created ADMIN user - {}", admin);
+            System.out.println("created ADMIN user - ".concat(admin.toString()));
         }
     }
 }
