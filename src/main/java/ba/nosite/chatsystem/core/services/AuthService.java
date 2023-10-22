@@ -27,16 +27,19 @@ public class AuthService {
     private final AuthenticationManager authManager;
     private final EmailSenderService emailSenderService;
 
-    public AuthService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder, JwtService jwtService, AuthenticationManager authManager, EmailSenderService emailSenderService) {
+    private final UserService userService;
+
+    public AuthService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder, JwtService jwtService, AuthenticationManager authManager, EmailSenderService emailSenderService, UserService userService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.authManager = authManager;
         this.emailSenderService = emailSenderService;
+        this.userService = userService;
     }
 
     public void register(RegisterRequest request, String siteUrl) throws MessagingException, UnsupportedEncodingException {
-        var user = new User(
+        User user = new User(
                 request.getFirst_name(),
                 request.getLast_name(),
                 request.getEmail(),
@@ -48,7 +51,7 @@ public class AuthService {
         user.setVerificationCode(randomConfirmationCode);
         user.setEnabled(false);
 
-        userRepository.save(user);
+        userService.save(user);
 
         emailSenderService.sendVerificationEmail(user, siteUrl);
     }
@@ -84,7 +87,7 @@ public class AuthService {
         } else {
             user.setVerificationCode(null);
             user.setEnabled(true);
-            userRepository.save(user);
+            userService.save(user);
 
             return true;
         }
