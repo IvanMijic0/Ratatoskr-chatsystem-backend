@@ -2,7 +2,6 @@ package ba.nosite.chatsystem.rest.controllers;
 
 import ba.nosite.chatsystem.core.dto.UserResponse;
 import ba.nosite.chatsystem.core.models.User;
-import ba.nosite.chatsystem.core.repository.UserRepository;
 import ba.nosite.chatsystem.core.services.UserService;
 import ba.nosite.chatsystem.rest.configurations.UserNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -16,11 +15,9 @@ import java.util.List;
 @RequestMapping("api/v1/user")
 public class UserController {
     private final UserService userService;
-    private final UserRepository userRepository;
 
-    public UserController(UserService userService, UserRepository userRepository) {
+    public UserController(UserService userService) {
         this.userService = userService;
-        this.userRepository = userRepository;
     }
 
     @GetMapping
