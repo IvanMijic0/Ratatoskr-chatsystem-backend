@@ -6,6 +6,8 @@ import ba.nosite.chatsystem.core.dto.RegisterRequest;
 import ba.nosite.chatsystem.core.models.Role;
 import ba.nosite.chatsystem.core.models.User;
 import ba.nosite.chatsystem.core.repository.UserRepository;
+import jakarta.mail.MessagingException;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -13,21 +15,27 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.io.UnsupportedEncodingException;
+import java.util.Optional;
+import java.util.UUID;
+
 @Service
 public class AuthService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authManager;
+    private final EmailSenderService emailSenderService;
 
-    public AuthService(UserRepository userRepository, UserService userService, BCryptPasswordEncoder passwordEncoder, JwtService jwtService, AuthenticationManager authManager) {
+    public AuthService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder, JwtService jwtService, AuthenticationManager authManager, EmailSenderService emailSenderService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.authManager = authManager;
+        this.emailSenderService = emailSenderService;
     }
 
-    public JwtAuthenticationResponse register(RegisterRequest request) {
+    public void register(RegisterRequest request, String siteUrl) throws MessagingException, UnsupportedEncodingException {
         var user = new User(
                 request.getFirst_name(),
                 request.getLast_name(),
@@ -36,9 +44,13 @@ public class AuthService {
                 Role.ROLE_USER
         );
 
-        user = userRepository.save(user);
-        var jwt = jwtService.generateToken(user);
-        return new JwtAuthenticationResponse(jwt);
+        String randomConfirmationCode = UUID.randomUUID().toString();
+        user.setVerificationCode(randomConfirmationCode);
+        user.setEnabled(false);
+
+        userRepository.save(user);
+
+        emailSenderService.sendVerificationEmail(user, siteUrl);
     }
 
     public ResponseEntity<JwtAuthenticationResponse> login(LoginRequest request) {
@@ -57,5 +69,29 @@ public class AuthService {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new JwtAuthenticationResponse("Authentication failed"));
         }
+    }
+
+    public boolean verify(String verificationCode) {
+        Optional<User> maybe_user = userRepository.findByVerificationCode(verificationCode);
+
+        if (maybe_user.isEmpty()) {
+            return false;
+        }
+        User user = maybe_user.get();
+
+        if (user.isEnabled()) {
+            return false;
+        } else {
+            user.setVerificationCode(null);
+            user.setEnabled(true);
+            userRepository.save(user);
+
+            return true;
+        }
+    }
+
+    public String getSiteURL(HttpServletRequest request) {
+        String siteURL = request.getRequestURL().toString();
+        return siteURL.replace(request.getServletPath(), "");
     }
 }

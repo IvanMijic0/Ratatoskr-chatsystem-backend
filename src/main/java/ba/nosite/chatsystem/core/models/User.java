@@ -28,11 +28,11 @@ public class User implements UserDetails {
     private String password;
 
     private LocalTime createdAt;
-
     private LocalTime updatedAt;
-
     @Enumerated(EnumType.STRING)
     private Role role;
+    private String verificationCode;
+    private Boolean enabled;
 
     public User(String first_name, String last_name, String email, String password, Role role) {
         this.first_name = first_name;
@@ -50,6 +50,18 @@ public class User implements UserDetails {
         this._id = _id;
     }
 
+    public String getVerificationCode() {
+        return verificationCode;
+    }
+
+    public void setVerificationCode(String verificationCode) {
+        this.verificationCode = verificationCode;
+    }
+
+    public Boolean getEnabled() {
+        return enabled;
+    }
+
     public String getFirst_name() {
         return first_name;
     }
@@ -64,6 +76,10 @@ public class User implements UserDetails {
 
     public void setLast_name(String last_name) {
         this.last_name = last_name;
+    }
+
+    public String getFull_name() {
+        return this.first_name.concat(" ").concat(this.last_name);
     }
 
     public String getEmail() {
@@ -134,6 +150,10 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return enabled;
+    }
+
+    public void setEnabled(Boolean enabled) {
+        this.enabled = enabled;
     }
 }

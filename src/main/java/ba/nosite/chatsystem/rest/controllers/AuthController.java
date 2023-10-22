@@ -4,10 +4,12 @@ import ba.nosite.chatsystem.core.dto.JwtAuthenticationResponse;
 import ba.nosite.chatsystem.core.dto.LoginRequest;
 import ba.nosite.chatsystem.core.dto.RegisterRequest;
 import ba.nosite.chatsystem.core.services.AuthService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import jakarta.mail.MessagingException;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.data.repository.query.Param;
+import org.springframework.web.bind.annotation.*;
+
+import java.io.UnsupportedEncodingException;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -20,12 +22,22 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public JwtAuthenticationResponse register(@RequestBody RegisterRequest request) {
-        return authService.register(request);
+    public String register(@RequestBody RegisterRequest user, HttpServletRequest request) throws UnsupportedEncodingException, MessagingException {
+        authService.register(user, authService.getSiteURL(request));
+        return "Verification code sent";
     }
 
     @PostMapping("/login")
     public JwtAuthenticationResponse login(@RequestBody LoginRequest request) {
         return authService.login(request).getBody();
+    }
+
+    @GetMapping("/verify")
+    public String verifyUser(@Param("code") String code) {
+        if (authService.verify(code)) {
+            return "verify_success";
+        } else {
+            return "verify_fail";
+        }
     }
 }
