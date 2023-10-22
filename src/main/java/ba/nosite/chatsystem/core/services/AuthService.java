@@ -62,14 +62,15 @@ public class AuthService {
             authManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
             );
-            var user = userRepository.findByEmail(request.getEmail())
+            User user = userRepository.findByEmail(request.getEmail())
                     .orElseThrow(() -> new IllegalArgumentException("Invalid email or password."));
 
-            var jwt = jwtService.generateToken(user);
+            String jwt = jwtService.generateToken(user);
 
             return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
         } catch (Exception ex) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
                     .body(new JwtAuthenticationResponse("Authentication failed"));
         }
     }

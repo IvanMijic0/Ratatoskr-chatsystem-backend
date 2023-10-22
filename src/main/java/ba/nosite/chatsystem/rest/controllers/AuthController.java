@@ -3,7 +3,6 @@ package ba.nosite.chatsystem.rest.controllers;
 import ba.nosite.chatsystem.core.dto.JwtAuthenticationResponse;
 import ba.nosite.chatsystem.core.dto.LoginRequest;
 import ba.nosite.chatsystem.core.dto.RegisterRequest;
-import ba.nosite.chatsystem.core.exceptions.auth.AuthenticationException;
 import ba.nosite.chatsystem.core.exceptions.auth.RegistrationException;
 import ba.nosite.chatsystem.core.services.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,11 +31,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public JwtAuthenticationResponse login(@RequestBody LoginRequest request) {
-        try {
-            return authService.login(request).getBody();
-        } catch (Exception e) {
-            throw new AuthenticationException("Invalid Credentials.", e);
-        }
+        return authService.login(request).getBody();
     }
 
     @GetMapping("/verify")
