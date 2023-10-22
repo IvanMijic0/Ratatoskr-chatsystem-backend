@@ -13,15 +13,6 @@ public class UserResponse {
     private final LocalTime updatedAt;
     private final Role role;
 
-    public UserResponse(String _id, String name, String email, LocalTime createdAt, LocalTime updatedAt, Role role) {
-        this._id = _id;
-        this.name = name;
-        this.email = email;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-        this.role = role;
-    }
-
     public UserResponse(User user) {
         this._id = user.get_id();
         this.name = user.getFirst_name().concat(" ").concat(user.getLast_name());
