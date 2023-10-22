@@ -1,5 +1,7 @@
 package ba.nosite.chatsystem.core.services;
 
+import ba.nosite.chatsystem.core.dto.UserResponse;
+import ba.nosite.chatsystem.core.models.Role;
 import ba.nosite.chatsystem.core.models.User;
 import ba.nosite.chatsystem.core.repository.UserRepository;
 import ba.nosite.chatsystem.rest.configurations.UserNotFoundException;
@@ -8,7 +10,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -22,20 +26,26 @@ public class UserService {
         return username -> userRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("Username not found!"));
     }
 
-    public User save(User newUser) {
+    public UserResponse save(User newUser) {
         if (newUser.get_id() == null) {
             newUser.setCreatedAt(LocalTime.now());
+            newUser.setRole(Role.ROLE_USER);
         }
-
         newUser.setUpdatedAt(LocalTime.now());
-        return userRepository.save(newUser);
+
+        return new UserResponse(userRepository.save(newUser));
     }
 
-    public Iterable<User> list() {
-        return userRepository.findAll();
+    public List<UserResponse> list() {
+        List<User> users = userRepository.findAll();
+
+        return users
+                .stream()
+                .map(UserResponse::new)
+                .collect(Collectors.toList());
     }
 
-    public User update(String userId, User updatedUser) {
+    public UserResponse update(String userId, User updatedUser) {
         Optional<User> existingUser = userRepository.findById(userId);
 
         if (existingUser.isPresent()) {
@@ -51,7 +61,7 @@ public class UserService {
             }
             updatedUser.setUpdatedAt(LocalTime.now());
 
-            return userRepository.save(userToUpdate);
+            return new UserResponse(userRepository.save(userToUpdate));
         } else {
             throw new UserNotFoundException("User not found with ID: " + userId);
         }

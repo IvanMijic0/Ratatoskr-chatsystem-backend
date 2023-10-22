@@ -1,6 +1,8 @@
 package ba.nosite.chatsystem.rest.controllers;
 
+import ba.nosite.chatsystem.core.dto.UserResponse;
 import ba.nosite.chatsystem.core.models.User;
+import ba.nosite.chatsystem.core.repository.UserRepository;
 import ba.nosite.chatsystem.core.services.UserService;
 import ba.nosite.chatsystem.rest.configurations.UserNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -8,20 +10,24 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("api/v1/user")
 public class UserController {
     private final UserService userService;
+    private final UserRepository userRepository;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, UserRepository userRepository) {
         this.userService = userService;
+        this.userRepository = userRepository;
     }
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> list() {
         try {
-            Iterable<User> users = userService.list();
+            List<UserResponse> users = userService.list();
             return ResponseEntity.ok(users);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while fetching the user list: " + e.getMessage());
@@ -30,17 +36,15 @@ public class UserController {
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<User> createUser(@RequestBody User user) {
-        User createdUser = userService.save(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
+    public ResponseEntity<?> createUser(@RequestBody User user) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.save(user));
     }
 
     @PatchMapping("/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> updateUser(@PathVariable String userId, @RequestBody User updatedUser) {
         try {
-            User updated = userService.update(userId, updatedUser);
-            return ResponseEntity.ok(updated);
+            return ResponseEntity.ok(userService.update(userId, updatedUser));
         } catch (UserNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
