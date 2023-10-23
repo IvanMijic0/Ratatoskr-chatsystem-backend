@@ -26,7 +26,6 @@ public class AuthService {
     private final JwtService jwtService;
     private final AuthenticationManager authManager;
     private final EmailSenderService emailSenderService;
-
     private final UserService userService;
 
     public AuthService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder, JwtService jwtService, AuthenticationManager authManager, EmailSenderService emailSenderService, UserService userService) {
