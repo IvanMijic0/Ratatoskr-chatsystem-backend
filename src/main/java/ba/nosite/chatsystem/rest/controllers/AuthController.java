@@ -7,6 +7,7 @@ import ba.nosite.chatsystem.core.exceptions.auth.RegistrationException;
 import ba.nosite.chatsystem.core.services.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.repository.query.Param;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,10 +21,10 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public String register(@RequestBody RegisterRequest user, HttpServletRequest request) {
+    public ResponseEntity<?> register(@RequestBody RegisterRequest user, HttpServletRequest request) {
         try {
             authService.register(user, authService.getSiteURL(request));
-            return "Verification code sent";
+            return ResponseEntity.ok("Successfully sent Verification Code!");
         } catch (Exception e) {
             throw new RegistrationException("Failed to register user.", e);
         }
@@ -35,11 +36,11 @@ public class AuthController {
     }
 
     @GetMapping("/verify")
-    public String verifyUser(@Param("code") String code) {
+    public ResponseEntity<?> verifyUser(@Param("code") String code) {
         if (authService.verify(code)) {
-            return "verify_success";
+            return ResponseEntity.ok("Successful verification!");
         } else {
-            return "verify_fail";
+            return ResponseEntity.status(403).body("Confirmation token expired!");
         }
     }
 }

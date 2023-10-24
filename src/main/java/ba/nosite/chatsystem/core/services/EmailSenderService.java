@@ -21,13 +21,13 @@ public class EmailSenderService {
             throws MessagingException, UnsupportedEncodingException {
         String toAddress = user.getEmail();
         String fromAddress = "ratatoskr@chatting.ba";
-        String senderName = "Ratatoskr Service";
+        String senderName = "Ratatoskr Chat-System";
         String subject = "Please verify your registration";
         String content = "Dear [[name]],<br>"
-                + "Please click the link below to verify your registration:<br>"
-                + "<h3><a href=\"[[URL]]\" target=\"_self\">VERIFY</a></h3>"
-                + "Thank you,<br>"
-                + "Ratatoskr Service";
+                .concat("Please click the link below to verify your registration:<br>")
+                .concat("<h3><a href=\"[[URL]]\" target=\"_self\">VERIFY</a></h3>")
+                .concat("Thank you,<br>")
+                .concat("Ratatoskr Service");
 
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message);
@@ -37,7 +37,7 @@ public class EmailSenderService {
         helper.setSubject(subject);
 
         content = content.replace("[[name]]", user.getFull_name());
-        String verifyURL = siteURL + "/api/v1/verify?code=" + user.getVerificationCode();
+        String verifyURL = siteURL.concat("/api/v1/verify?code=").concat(user.getVerificationCode());
 
         content = content.replace("[[URL]]", verifyURL);
 

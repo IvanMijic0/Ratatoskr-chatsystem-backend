@@ -15,19 +15,30 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import static ba.nosite.chatsystem.helpers.TimeConversion.convertToMs;
+
 @Service
 public class JwtService {
     @Value("${authentication.token.secret.key}")
     String jwtSecretKey;
 
-    @Value("${authentication.token.expirationms}")
-    Long jwtExpirationMs;
+    @Value("${authentication.token.expirationHours}")
+    Long jwtExpirationHours;
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
-    String generateToken(UserDetails userDetails) {
+    public String extractCustomClaim(String token, String claimName) {
+        return extractClaim(token, claims -> claims.get(claimName, String.class));
+    }
+
+    public String generateTokenWithClaims(Map<String, Object> customClaims, UserDetails userDetails) {
+        return generateToken(customClaims, userDetails);
+
+    }
+
+    public String generateToken(UserDetails userDetails) {
         return generateToken(new HashMap<>(), userDetails);
     }
 
@@ -47,7 +58,7 @@ public class JwtService {
                 .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
+                .setExpiration(new Date(System.currentTimeMillis() + convertToMs(jwtExpirationHours)))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
