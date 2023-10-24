@@ -1,9 +1,10 @@
-package ba.nosite.chatsystem.core.dto;
+package ba.nosite.chatsystem.core.dto.authDtos;
 
 public class RegisterRequest {
     String first_name;
     String last_name;
     String email;
+    String password;
 
     public String getFirst_name() {
         return first_name;
@@ -36,6 +37,4 @@ public class RegisterRequest {
     public void setPassword(String password) {
         this.password = password;
     }
-
-    String password;
 }

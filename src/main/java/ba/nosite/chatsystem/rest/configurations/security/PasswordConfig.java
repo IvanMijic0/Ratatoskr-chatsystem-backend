@@ -1,4 +1,4 @@
-package ba.nosite.chatsystem.rest.configurations;
+package ba.nosite.chatsystem.rest.configurations.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

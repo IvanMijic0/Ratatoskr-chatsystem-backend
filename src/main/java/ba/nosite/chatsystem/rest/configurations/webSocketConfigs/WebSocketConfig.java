@@ -1,4 +1,4 @@
-package ba.nosite.chatsystem.rest.configurations;
+package ba.nosite.chatsystem.rest.configurations.webSocketConfigs;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;

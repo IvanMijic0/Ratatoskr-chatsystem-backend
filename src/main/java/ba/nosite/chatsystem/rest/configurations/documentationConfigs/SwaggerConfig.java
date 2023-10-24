@@ -1,4 +1,4 @@
-package ba.nosite.chatsystem.rest.configurations;
+package ba.nosite.chatsystem.rest.configurations.documentationConfigs;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Contact;

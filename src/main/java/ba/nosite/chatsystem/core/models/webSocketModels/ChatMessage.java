@@ -1,4 +1,4 @@
-package ba.nosite.chatsystem.core.models;
+package ba.nosite.chatsystem.core.models.webSocketModels;
 
 import ba.nosite.chatsystem.core.models.enums.MessageType;
 

@@ -1,6 +1,6 @@
 package ba.nosite.chatsystem.rest.controllers;
 
-import ba.nosite.chatsystem.core.dto.UserResponse;
+import ba.nosite.chatsystem.core.dto.userDtos.UserResponse;
 import ba.nosite.chatsystem.core.exceptions.auth.UserNotFoundException;
 import ba.nosite.chatsystem.core.models.User;
 import ba.nosite.chatsystem.core.services.UserService;

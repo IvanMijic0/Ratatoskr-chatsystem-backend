@@ -1,4 +1,4 @@
-package ba.nosite.chatsystem.rest.configurations;
+package ba.nosite.chatsystem.rest.configurations.security;
 
 import ba.nosite.chatsystem.core.filters.JwtAuthenticationFilter;
 import ba.nosite.chatsystem.core.services.UserService;

@@ -1,4 +1,4 @@
-package ba.nosite.chatsystem.core.models;
+package ba.nosite.chatsystem.core.models.chatModels;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 

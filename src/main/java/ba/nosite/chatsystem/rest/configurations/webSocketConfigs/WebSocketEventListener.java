@@ -1,7 +1,7 @@
-package ba.nosite.chatsystem.rest.configurations;
+package ba.nosite.chatsystem.rest.configurations.webSocketConfigs;
 
-import ba.nosite.chatsystem.core.models.ChatMessage;
 import ba.nosite.chatsystem.core.models.enums.MessageType;
+import ba.nosite.chatsystem.core.models.webSocketModels.ChatMessage;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;

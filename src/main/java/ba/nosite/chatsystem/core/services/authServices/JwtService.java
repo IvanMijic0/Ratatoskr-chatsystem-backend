@@ -1,4 +1,4 @@
-package ba.nosite.chatsystem.core.services;
+package ba.nosite.chatsystem.core.services.authServices;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

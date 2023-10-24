@@ -1,7 +1,7 @@
 package ba.nosite.chatsystem.core.filters;
 
-import ba.nosite.chatsystem.core.services.JwtService;
 import ba.nosite.chatsystem.core.services.UserService;
+import ba.nosite.chatsystem.core.services.authServices.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

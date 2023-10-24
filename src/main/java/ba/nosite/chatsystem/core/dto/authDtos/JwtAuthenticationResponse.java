@@ -1,4 +1,4 @@
-package ba.nosite.chatsystem.core.dto;
+package ba.nosite.chatsystem.core.dto.authDtos;
 
 public class JwtAuthenticationResponse {
     private String token;

@@ -1,6 +1,9 @@
-package ba.nosite.chatsystem.core.dto;
+package ba.nosite.chatsystem.core.dto.authDtos;
 
 public class LoginRequest {
+    String email;
+    String password;
+
     public String getEmail() {
         return email;
     }
@@ -16,7 +19,4 @@ public class LoginRequest {
     public void setPassword(String password) {
         this.password = password;
     }
-
-    String email;
-    String password;
 }

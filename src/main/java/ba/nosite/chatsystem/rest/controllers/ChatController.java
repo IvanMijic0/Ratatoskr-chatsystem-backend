@@ -1,6 +1,6 @@
 package ba.nosite.chatsystem.rest.controllers;
 
-import ba.nosite.chatsystem.core.models.ChatMessage;
+import ba.nosite.chatsystem.core.models.webSocketModels.ChatMessage;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;

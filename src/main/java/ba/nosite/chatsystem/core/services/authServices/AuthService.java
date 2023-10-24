@@ -1,13 +1,15 @@
-package ba.nosite.chatsystem.core.services;
+package ba.nosite.chatsystem.core.services.authServices;
 
-import ba.nosite.chatsystem.core.dto.JwtAuthenticationResponse;
-import ba.nosite.chatsystem.core.dto.LoginRequest;
-import ba.nosite.chatsystem.core.dto.RegisterRequest;
+import ba.nosite.chatsystem.core.dto.authDtos.JwtAuthenticationResponse;
+import ba.nosite.chatsystem.core.dto.authDtos.LoginRequest;
+import ba.nosite.chatsystem.core.dto.authDtos.RegisterRequest;
 import ba.nosite.chatsystem.core.exceptions.auth.AuthenticationException;
 import ba.nosite.chatsystem.core.exceptions.auth.UserAlreadyExistsException;
 import ba.nosite.chatsystem.core.models.User;
 import ba.nosite.chatsystem.core.models.enums.Role;
 import ba.nosite.chatsystem.core.repository.UserRepository;
+import ba.nosite.chatsystem.core.services.EmailSenderService;
+import ba.nosite.chatsystem.core.services.UserService;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
