@@ -1,4 +1,3 @@
-'use strict';
 import SockJS from 'sockjs-client';
 import { Client, over } from 'stompjs';
 
