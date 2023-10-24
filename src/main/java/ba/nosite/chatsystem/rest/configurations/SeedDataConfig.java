@@ -1,7 +1,7 @@
 package ba.nosite.chatsystem.rest.configurations;
 
-import ba.nosite.chatsystem.core.models.Role;
 import ba.nosite.chatsystem.core.models.User;
+import ba.nosite.chatsystem.core.models.enums.Role;
 import ba.nosite.chatsystem.core.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;

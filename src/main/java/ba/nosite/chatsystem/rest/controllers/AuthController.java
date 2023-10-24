@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1")
 public class AuthController {
-
     private final AuthService authService;
 
     public AuthController(AuthService authService) {
@@ -26,12 +25,12 @@ public class AuthController {
             authService.register(user, authService.getSiteURL(request));
             return ResponseEntity.ok("Successfully sent Verification Code!");
         } catch (Exception e) {
-            throw new RegistrationException("Failed to register user.", e);
+            throw new RegistrationException("Failed to Register User.", e);
         }
     }
 
     @PostMapping("/login")
-    public JwtAuthenticationResponse login(@RequestBody LoginRequest request) {
+    public ResponseEntity<JwtAuthenticationResponse> login(@RequestBody LoginRequest request) {
         return authService.login(request);
     }
 
@@ -39,8 +38,7 @@ public class AuthController {
     public ResponseEntity<?> verifyUser(@Param("code") String code) {
         if (authService.verify(code)) {
             return ResponseEntity.ok("Successful verification!");
-        } else {
-            return ResponseEntity.status(403).body("Confirmation token expired!");
         }
+        return ResponseEntity.status(403).body("Confirmation token expired!");
     }
 }

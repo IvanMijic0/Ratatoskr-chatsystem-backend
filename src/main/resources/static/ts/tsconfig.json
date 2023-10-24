@@ -1,0 +1,23 @@
+{
+  "files": [
+    "main.ts",
+  ],
+  "compilerOptions": {
+    "types": [
+      "sockjs-client",
+      "stompjs"
+    ],
+    "target": "ES6",
+    "esModuleInterop": true,
+    "module": "commonjs",
+    "sourceMap": true,
+    "allowSyntheticDefaultImports": true,
+    "lib": [
+      "decorators",
+      "dom",
+      "es5",
+      "scripthost",
+      "webworker"
+    ]
+  }
+}

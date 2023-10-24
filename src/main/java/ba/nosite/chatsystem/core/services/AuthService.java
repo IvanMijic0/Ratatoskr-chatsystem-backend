@@ -5,8 +5,8 @@ import ba.nosite.chatsystem.core.dto.LoginRequest;
 import ba.nosite.chatsystem.core.dto.RegisterRequest;
 import ba.nosite.chatsystem.core.exceptions.auth.AuthenticationException;
 import ba.nosite.chatsystem.core.exceptions.auth.UserAlreadyExistsException;
-import ba.nosite.chatsystem.core.models.Role;
 import ba.nosite.chatsystem.core.models.User;
+import ba.nosite.chatsystem.core.models.enums.Role;
 import ba.nosite.chatsystem.core.repository.UserRepository;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -37,7 +37,10 @@ public class AuthService {
         this.userService = userService;
     }
 
-    public void register(RegisterRequest request, String siteUrl) throws MessagingException, UnsupportedEncodingException {
+    public void register(RegisterRequest request, String siteUrl) throws
+            MessagingException,
+            UnsupportedEncodingException,
+            UserAlreadyExistsException {
         User user = new User(
                 request.getFirst_name(),
                 request.getLast_name(),
@@ -50,9 +53,8 @@ public class AuthService {
             User existingUser = potentialExistingUser.get();
             if (existingUser.getEnabled().equals(true)) {
                 throw new UserAlreadyExistsException("User already exists in database.");
-            } else {
-                userService.delete(existingUser.get_id());
             }
+            userService.delete(existingUser.get_id());
         }
         user.setVerificationCode(jwtService.generateToken(user));
         user.setEnabled(false);
@@ -61,7 +63,7 @@ public class AuthService {
         emailSenderService.sendVerificationEmail(user, siteUrl);
     }
 
-    public JwtAuthenticationResponse login(LoginRequest request) {
+    public ResponseEntity<JwtAuthenticationResponse> login(LoginRequest request) {
         try {
             authManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
@@ -71,7 +73,7 @@ public class AuthService {
 
             String jwt = jwtService.generateToken(user);
 
-            return ResponseEntity.ok(new JwtAuthenticationResponse(jwt)).getBody();
+            return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
         } catch (Exception ex) {
             throw new AuthenticationException("Invalid Credentials");
         }
@@ -79,24 +81,21 @@ public class AuthService {
 
     public boolean verify(String verificationCode) {
         Optional<User> maybe_user = userRepository.findByVerificationCode(verificationCode);
-
         if (maybe_user.isEmpty()) {
             return false;
         }
         User user = maybe_user.get();
-
         if (user.isEnabled()) {
             return false;
-        } else {
-            if (jwtService.isTokenValid(user.getVerificationCode(), user)) {
-                user.setVerificationCode(null);
-                user.setEnabled(true);
-                userService.save(user);
-                return true;
-            } else {
-                return false;
-            }
         }
+
+        if (jwtService.isTokenValid(user.getVerificationCode(), user)) {
+            user.setVerificationCode(null);
+            user.setEnabled(true);
+            userService.save(user);
+            return true;
+        }
+        return false;
     }
 
     public String getSiteURL(HttpServletRequest request) {

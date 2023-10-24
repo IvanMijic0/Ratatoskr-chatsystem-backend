@@ -1,9 +1,9 @@
 package ba.nosite.chatsystem.rest.controllers;
 
 import ba.nosite.chatsystem.core.dto.UserResponse;
+import ba.nosite.chatsystem.core.exceptions.auth.UserNotFoundException;
 import ba.nosite.chatsystem.core.models.User;
 import ba.nosite.chatsystem.core.services.UserService;
-import ba.nosite.chatsystem.rest.configurations.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

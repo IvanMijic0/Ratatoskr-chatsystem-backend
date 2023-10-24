@@ -1,7 +1,7 @@
 package ba.nosite.chatsystem.core.dto;
 
-import ba.nosite.chatsystem.core.models.Role;
 import ba.nosite.chatsystem.core.models.User;
+import ba.nosite.chatsystem.core.models.enums.Role;
 
 import java.time.LocalTime;
 
