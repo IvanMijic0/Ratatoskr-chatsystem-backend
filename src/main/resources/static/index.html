@@ -6,8 +6,7 @@
     <link href="./css/main.css" rel="stylesheet">
     <link href="favicon.ico" rel="icon" type="image/x-icon">
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+
 </head>
 <body>
 <noscript>
@@ -35,6 +34,11 @@
 
 <div class="hidden" id="chat-page">
     <div class="chat-container">
+        <div id="left-section" style="float: left; width: 200px;">
+            <div class="left-section-container">
+                <button class="left-section-button" id="chatroom-button">ChatRoom</button>
+            </div>
+        </div>
         <div class="chat-header">
             <h2>RATATOSKR CHAT-SYSTEM</h2>
         </div>
@@ -45,9 +49,10 @@
 
         </ul>
         <form id="messageForm" name="messageForm">
+
             <div class="form-group">
                 <div class="input-group clearfix">
-                    <input autocomplete="off" class="form-control" id="message" placeholder="Type a message..."
+                    <input class="form-control" id="message" placeholder="Type a message..."
                            type="text"/>
                     <button class="primary" type="submit">Send</button>
                 </div>
@@ -56,6 +61,8 @@
     </div>
 </div>
 
-<script src="ts/main.js" type="module"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+<script src="ts/main.js"></script>
 </body>
 </html>

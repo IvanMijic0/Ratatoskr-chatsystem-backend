@@ -94,15 +94,25 @@ button.default {
 }
 
 button.primary {
-    background-color: #2d213c;
+    background-color: #ed4036;
     box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.12);
     color: #fff;
+    border-radius: 5px;
 }
 
 button.accent {
     background-color: #ed4036;
     box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.12);
     color: #fff;
+    border-radius: 5px;
+}
+
+button:hover {
+    background-color: #ff4a43;
+}
+
+button:active {
+    background-color: #cc2319;
 }
 
 #username-page {
@@ -133,6 +143,7 @@ button.accent {
 #chat-page {
     position: relative;
     height: 100%;
+    border-radius: 5px;
 }
 
 .chat-container {
@@ -191,8 +202,8 @@ button.accent {
 
 #chat-page .chat-message i {
     position: absolute;
-    width: 42px;
-    height: 42px;
+    width: 100px;
+    height: 100px;
     overflow: hidden;
     left: 10px;
     display: inline-block;
@@ -245,6 +256,29 @@ button.accent {
     position: absolute;
     top: 65px;
     width: 100%;
+}
+
+.left-section-container {
+    display: flex;
+    flex-direction: column;
+    margin-top: 4.3rem;
+    align-items: center;
+}
+
+.left-section-button {
+    margin-bottom: .2rem;
+    background-color: #ed4036;
+    width: 10rem;
+    color: whitesmoke;
+    border-radius: 5px;
+}
+
+.left-section-button:hover {
+    background-color: #ff4a43;
+}
+
+.left-section-button:active {
+    background-color: #cc2319;
 }
 
 

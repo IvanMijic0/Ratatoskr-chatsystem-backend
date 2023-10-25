@@ -1,6 +1,6 @@
 {
   "files": [
-    "main.ts",
+    "main.ts"
   ],
   "compilerOptions": {
     "types": [
@@ -13,9 +13,7 @@
     "sourceMap": true,
     "allowSyntheticDefaultImports": true,
     "lib": [
-      "decorators",
       "dom",
-      "es5",
       "scripthost",
       "webworker"
     ]
