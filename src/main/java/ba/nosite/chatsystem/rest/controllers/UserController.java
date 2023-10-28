@@ -23,12 +23,8 @@ public class UserController {
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> list() {
-        try {
-            List<UserResponse> users = userService.list();
-            return ResponseEntity.ok(users);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while fetching the user list: " + e.getMessage());
-        }
+        List<UserResponse> users = userService.list();
+        return ResponseEntity.ok(users);
     }
 
     @PostMapping
@@ -36,7 +32,6 @@ public class UserController {
     public ResponseEntity<?> createUser(@RequestBody User user) {
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.save(user));
     }
-
 
     @PatchMapping("/{userId}")
     @PreAuthorize("hasRole('ADMIN')")

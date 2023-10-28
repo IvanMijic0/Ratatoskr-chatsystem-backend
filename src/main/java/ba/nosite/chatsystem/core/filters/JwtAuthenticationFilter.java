@@ -2,6 +2,7 @@ package ba.nosite.chatsystem.core.filters;
 
 import ba.nosite.chatsystem.core.services.UserService;
 import ba.nosite.chatsystem.core.services.authServices.JwtService;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,9 +19,10 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+import static ba.nosite.chatsystem.helpers.customJSONResponse.jsonResponse;
+
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-
     private final JwtService jwtService;
     private final UserService userService;
 
@@ -43,11 +45,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         jwt = authHeader.substring(7);
         System.out.println("JWT - ".concat(jwt));
-        userEmail = jwtService.extractUsername(jwt);
-        if (StringUtils.isNotEmpty(userEmail) && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userService.userDetailsService().loadUserByUsername(userEmail);
-            if (jwtService.isTokenValid(jwt, userDetails)) {
-                System.out.println("User - ".concat(userDetails.toString()));
+
+        try {
+            if (jwtService.isTokenExpired(jwt)) {
+                throw new JwtException("JWT token has expired");
+            }
+
+            userEmail = jwtService.extractUsername(jwt);
+
+            if (StringUtils.isNotEmpty(userEmail) && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = userService.userDetailsService().loadUserByUsername(userEmail);
+                System.out.println("User - " + userDetails.toString());
                 SecurityContext context = SecurityContextHolder.createEmptyContext();
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities());
@@ -56,6 +64,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 context.setAuthentication(authToken);
                 SecurityContextHolder.setContext(context);
             }
+        } catch (JwtException e) {
+            jsonResponse(response, "JWT token has expired or is not valid.");
+            return;
         }
         filterChain.doFilter(request, response);
     }

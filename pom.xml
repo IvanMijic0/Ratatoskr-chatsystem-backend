@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>ba.nosite</groupId>
-    <artifactId>chatsystem</artifactId>
+    <artifactId>ratatoskr-chatsystem-backend</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>chatsystem</name>
     <description>chatsystem</description>

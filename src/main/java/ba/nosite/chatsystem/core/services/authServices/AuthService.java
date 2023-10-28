@@ -67,17 +67,20 @@ public class AuthService {
 
     public ResponseEntity<JwtAuthenticationResponse> login(LoginRequest request) {
         try {
-            authManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
-            );
-            User user = userRepository.findByEmail(request.getEmail())
-                    .orElseThrow(() -> new IllegalArgumentException("Invalid email or password."));
+            authManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+            Optional<User> myb_user = userRepository.findByEmail(request.getEmail());
 
+            if (myb_user.isEmpty()) {
+                throw new AuthenticationException("Invalid Credentials");
+            }
+
+            User user = myb_user.get();
             String jwt = jwtService.generateToken(user);
 
             return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
         } catch (Exception ex) {
-            throw new AuthenticationException("Invalid Credentials");
+            System.out.println("ex");
+            throw new AuthenticationException("Invalid Credentials", ex);
         }
     }
 
