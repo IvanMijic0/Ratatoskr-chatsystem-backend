@@ -1,0 +1,49 @@
+My application.yaml is ignored by git for security reasons.
+I connected to mongodb by its dockerized container, hence the uri.
+
+Sensitive Data is omitted.
+
+spring:
+  data:
+    mongodb:
+      uri: mongodb://{username}:{password}@{host}:{port}/chat-system?authSource=admin
+      auto-index-creation: true
+
+  http:
+    media_type:
+      type:
+        css: text/css
+        js: text/javascript
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+    username: ivan.mijic@stu.ibu.edu.ba
+    password: {authPassword}
+
+authentication:
+  token:
+    secret:
+      key: {secretKey}
+
+    expirationms: 3600000
+
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG
+
+configuration:
+  swagger:
+    app: Chat System <RATATOSKR>
+    description: A basic user chatting system built in Spring Boot and React
+    developer: Ivan Mijić
+    email: ivan.mijic@stu.ibu.edu.ba
