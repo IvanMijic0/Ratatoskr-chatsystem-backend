@@ -12,7 +12,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry
-                .addEndpoint("/ws").setAllowedOriginPatterns("*")
+                .addEndpoint("/ws").setAllowedOriginPatterns("*") // Change originsPatterns later
                 .withSockJS();
     }
 
@@ -21,6 +21,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registry
                 .setUserDestinationPrefix("/user")
                 .setApplicationDestinationPrefixes("/app")
-                .enableSimpleBroker("/chatroom", "/user");
+                .enableSimpleBroker("/chatroom", "/user", "/webrtc");
     }
 }

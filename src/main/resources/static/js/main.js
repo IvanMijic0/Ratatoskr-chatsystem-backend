@@ -1,11 +1,7 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const sockjs_client_1 = __importDefault(require("sockjs-client"));
-const stompjs_1 = require("stompjs");
+
 // This is a village person <seljački> frontend code, but it'll do for testing...
+
 const usernamePage = document.querySelector('#username-page');
 const chatPage = document.querySelector('#chat-page');
 const usernameForm = document.querySelector('#usernameForm');
@@ -14,18 +10,22 @@ const messageInput = document.querySelector('#message');
 const messageArea = document.querySelector('#messageArea');
 const connectingElement = document.querySelector('.connecting');
 const leftSectionContainer = document.querySelector('.left-section-container');
+const videoButton = document.getElementById("videoButton");
 let stompClient = null;
+let webRtcPeer = null;
 let username = null;
 const colors = [
     '#2196F3', '#32c787', '#00BCD4', '#ff5652',
     '#ffc107', '#ff85af', '#FF9800', '#39bbb0'
 ];
+let userButton;
+
 const addButton = (text, id) => {
-    const button = document.createElement('button');
-    button.className = 'left-section-button';
-    button.id = id;
-    button.textContent = text;
-    leftSectionContainer.appendChild(button);
+    userButton = document.createElement('button');
+    userButton.className = 'left-section-button';
+    userButton.id = id;
+    userButton.textContent = text;
+    leftSectionContainer.appendChild(userButton);
 };
 const removeButtonByText = (text) => {
     const leftSectionContainer = document.getElementById('left-section-container');
@@ -54,6 +54,7 @@ const onPublicMessageReceive = (payload) => {
             addButton(message.sender, "users-button");
             messageClass = 'event-message';
             message.content = message.sender.concat(' joined!');
+            userButton.addEventListener('click', handleUserButton, true)
             break;
         case 'LEAVE':
             removeButtonByText(message.sender);
@@ -82,15 +83,48 @@ const onPublicMessageReceive = (payload) => {
     messageArea.scrollTop = messageArea.scrollHeight;
 };
 const onPrivateMessageReceived = (payload) => {
+
     const message = JSON.parse(payload.body);
 };
+
+const onWebRTCMessageReceived = payload => {
+    const signalData = JSON.parse(payload.body);
+
+    if (signalData.type === 'offer') {
+        // Handle SDP offer
+        receiveVideoCall();
+    } else if (signalData.type === 'answer') {
+        // Handle SDP answer
+        webRtcPeer.signal(signalData);
+    } else if (signalData.type === 'candidate') {
+        // Handle ICE candidate
+        if (
+            signalData.sdpMid &&
+            signalData.sdpMLineIndex &&
+            signalData.candidate
+        ) {
+            const iceCandidate = new RTCIceCandidate(signalData);
+            webRtcPeer.addIceCandidate(iceCandidate); // Assuming webRtcPeer is your SimplePeer instance
+        } else {
+            console.error('Invalid ICE candidate data:', signalData);
+        }
+    }
+}
+
 const onConnected = () => {
-    // Subscribe to the Public Topic
+    // // Subscribe to the Public Topic
     stompClient.subscribe('/chatroom/public', onPublicMessageReceive);
+    stompClient.subscribe('/webrtc/public', onWebRTCMessageReceived)
+
+    // stompClient.subscribe('/app/webrtc.signal', (message) => {
+    //     const signalData = JSON.parse(message.body);
+    //     webRtcPeer.signal(signalData);
+    // });
+
     // Subscribe to the Private Topic
     stompClient.subscribe("/user/".concat(username.toString()).concat("/private"), onPrivateMessageReceived);
     // Tell username to the server
-    stompClient.send('/app/chat.addUser', {}, JSON.stringify({ sender: username, type: 'JOIN' }));
+    stompClient.send('/app/chat.addUser', {}, JSON.stringify({sender: username, type: 'JOIN'}));
     connectingElement.classList.add('hidden');
 };
 const onError = () => {
@@ -104,8 +138,9 @@ const connect = (e) => {
     if (username) {
         usernamePage.classList.add('hidden');
         chatPage.classList.remove('hidden');
-        const socket = new sockjs_client_1.default('/ws');
-        stompClient = (0, stompjs_1.over)(socket);
+        const socket = new SockJS('/ws');
+        stompClient = Stomp.over(socket);
+
         stompClient.connect({}, onConnected, onError);
     }
 };
@@ -122,7 +157,52 @@ const sendPublicMessage = (e) => {
         messageInput.value = '';
     }
 };
+const startVideoCall = () => {
+    const webRtcPeer = new SimplePeer({initiator: true});
+
+    console.log("Start video call");
+
+    navigator.mediaDevices.getUserMedia({video: true, audio: false})
+        .then((localStream) => {
+            // Attach the local stream to a video element (assuming you have a local video element)
+            const localVideo = document.querySelector('#localVideo');
+            localVideo.srcObject = localStream;
+        })
+        .catch((error) => {
+            console.error("getUserMedia error: ", error);
+        });
+
+    // Handle signaling for WebRTC
+    webRtcPeer.on('signal', (signalData) => {
+        stompClient.send('/app/webrtc.signal', {}, JSON.stringify(signalData));
+    });
+};
+
+const receiveVideoCall = () => {
+    webRtcPeer = new SimplePeer({
+        initiator: false,
+    }); // Set initiator to false
+
+    console.log("Receive video call");
+
+    webRtcPeer.on('stream', (stream) => {
+        const remoteVideo = document.querySelector('#remoteVideo');
+        console.log("Remote video received")
+        remoteVideo.srcObject = stream;
+        remoteVideo.play();
+    });
+
+    webRtcPeer.on('signal', (signalData) => {
+        stompClient.send('/app/webrtc.signal', {}, JSON.stringify(signalData));
+    });
+};
+
+const handleUserButton = () => {
+
+
+    console.log(userButton.textContent);
+}
+
 usernameForm.addEventListener('submit', connect, true);
-// Check if Chat-room or User_to_User
 messageForm.addEventListener('submit', sendPublicMessage, true);
-//# sourceMappingURL=main.js.map
+// videoButton.addEventListener('click', receiveVideoCall)

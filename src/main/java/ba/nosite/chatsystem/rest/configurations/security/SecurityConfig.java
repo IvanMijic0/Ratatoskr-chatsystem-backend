@@ -60,7 +60,7 @@ public class SecurityConfig extends SecurityConfigurerAdapter<DefaultSecurityFil
                         .requestMatchers(HttpMethod.POST, "/api/v1/register", "/api/v1/login").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/test/**", "/v3/api-docs/**",
                                 "/swagger-ui/**", "api/v1/verify", "/", "/topic/**", "/app",
-                                "/index.html", "/css/main.css", "/ts/**", "/favicon.ico",
+                                "/index.html", "/css/main.css", "/js/**", "/favicon.ico",
                                 "/ws/**").permitAll()
                         .anyRequest().authenticated()
                 )

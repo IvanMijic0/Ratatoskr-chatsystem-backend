@@ -37,5 +37,5 @@ build/
 **/src/main/**/application.yaml
 
 ### FRONTEND ###
-/src/main/resources/static/ts/node_modules/
-/src/main/resources/static/ts/package-lock.json
+/src/main/resources/static/js/node_modules/
+/src/main/resources/static/js/package-lock.json
