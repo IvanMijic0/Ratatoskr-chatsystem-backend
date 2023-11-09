@@ -1,8 +1,17 @@
 package ba.nosite.chatsystem.core.dto.authDtos;
 
 public class LoginRequest {
+    String username;
     String email;
     String password;
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
     public String getEmail() {
         return email;

@@ -25,8 +25,9 @@ public class SeedDataConfig implements CommandLineRunner {
             User admin = new User(
                     "admin",
                     "admin",
+                    "admin0",
                     "admin@admin.com",
-                    passwordEncoder.encode("password"),
+                    passwordEncoder.encode("password0"),
                     Role.ROLE_ADMIN
             );
             admin.setEnabled(true);

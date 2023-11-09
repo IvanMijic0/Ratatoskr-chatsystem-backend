@@ -3,8 +3,17 @@ package ba.nosite.chatsystem.core.dto.authDtos;
 public class RegisterRequest {
     String first_name;
     String last_name;
+    String username;
     String email;
     String password;
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
     public String getFirst_name() {
         return first_name;

@@ -33,7 +33,7 @@ public class JwtService {
         return extractClaim(token, claims -> claims.get(claimName, String.class));
     }
 
-    public String generateTokenWithClaims(Map<String, Object> customClaims, UserDetails userDetails) {
+    public String generateTokenWithAdditionalClaims(Map<String, Object> customClaims, UserDetails userDetails) {
         return generateToken(customClaims, userDetails);
 
     }
@@ -67,7 +67,7 @@ public class JwtService {
         return extractExpiration(token).before(new Date());
     }
 
-    private Date extractExpiration(String token) {
+    public Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
     }
 

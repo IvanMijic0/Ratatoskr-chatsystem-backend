@@ -22,12 +22,11 @@ public class User implements UserDetails {
     private String first_name;
 
     private String last_name;
-
+    @Indexed(unique = true)
+    private String username;
     @Indexed(unique = true)
     private String email;
-
     private String password;
-
     private LocalTime createdAt;
     private LocalTime updatedAt;
     @Enumerated(EnumType.STRING)
@@ -35,9 +34,10 @@ public class User implements UserDetails {
     private String verificationCode;
     private Boolean enabled;
 
-    public User(String first_name, String last_name, String email, String password, Role role) {
+    public User(String first_name, String last_name, String username, String email, String password, Role role) {
         this.first_name = first_name;
         this.last_name = last_name;
+        this.username = username;
         this.email = email;
         this.password = password;
         this.role = role;
@@ -131,7 +131,11 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return email;
+        return this.username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     @Override

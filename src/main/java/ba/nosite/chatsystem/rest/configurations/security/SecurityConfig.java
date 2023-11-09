@@ -19,6 +19,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
+
+import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
@@ -49,8 +56,21 @@ public class SecurityConfig extends SecurityConfigurerAdapter<DefaultSecurityFil
     }
 
     @Bean
+    CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.addAllowedOrigin("http://localhost:5173");
+        configuration.setAllowedMethods(List.of("GET", "POST"));
+        configuration.addAllowedHeader("*");
+        configuration.setAllowCredentials(true);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .cors(withDefaults())
                 .csrf(AbstractHttpConfigurer::disable
                 )
                 .sessionManagement(session -> session
@@ -59,7 +79,7 @@ public class SecurityConfig extends SecurityConfigurerAdapter<DefaultSecurityFil
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.POST, "/api/v1/register", "/api/v1/login").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/test/**", "/v3/api-docs/**",
-                                "/swagger-ui/**", "api/v1/verify", "/", "/topic/**", "/app",
+                                "/swagger-ui/**", "api/v1/verifyEmailToken", "/", "/topic/**", "/app",
                                 "/index.html", "/css/main.css", "/js/**", "/favicon.ico",
                                 "/ws/**").permitAll()
                         .anyRequest().authenticated()
@@ -69,5 +89,4 @@ public class SecurityConfig extends SecurityConfigurerAdapter<DefaultSecurityFil
 
         return http.build();
     }
-
 }

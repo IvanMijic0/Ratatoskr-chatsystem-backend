@@ -23,7 +23,7 @@ public class UserService {
     }
 
     public UserDetailsService userDetailsService() {
-        return username -> userRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("Username not found!"));
+        return username -> userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("Username not found!"));
     }
 
     public UserResponse save(User newUser) {
