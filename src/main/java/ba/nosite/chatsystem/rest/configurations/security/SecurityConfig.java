@@ -2,6 +2,7 @@ package ba.nosite.chatsystem.rest.configurations.security;
 
 import ba.nosite.chatsystem.core.filters.JwtAuthenticationFilter;
 import ba.nosite.chatsystem.core.services.UserService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -34,6 +35,8 @@ public class SecurityConfig extends SecurityConfigurerAdapter<DefaultSecurityFil
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final UserService userService;
     private final BCryptPasswordEncoder passwordEncoder;
+    @Value("${website.frontend.url}")
+    private String frontendUrl;
 
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter, UserService userService, BCryptPasswordEncoder passwordEncoder) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
@@ -58,7 +61,7 @@ public class SecurityConfig extends SecurityConfigurerAdapter<DefaultSecurityFil
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin("http://localhost:5173");
+        configuration.addAllowedOrigin(frontendUrl);
         configuration.setAllowedMethods(List.of("GET", "POST"));
         configuration.addAllowedHeader("*");
         configuration.setAllowCredentials(true);

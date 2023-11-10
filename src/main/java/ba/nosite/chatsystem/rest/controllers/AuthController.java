@@ -26,7 +26,7 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest user, HttpServletRequest request) {
         try {
-            authService.register(user, authService.getSiteURL(request));
+            authService.register(user);
             return ResponseEntity.ok("Successfully sent Verification Code!");
         } catch (Exception e) {
             throw new RegistrationException("Failed to Register User.", e);
@@ -52,10 +52,10 @@ public class AuthController {
 
     @PostMapping("/validateToken")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<?> verifyUser(@RequestHeader("Authorization") String authorizationHeader) {
-        if (authService.verifyUser(authorizationHeader)) {
-            return ResponseEntity.ok("Successful verification!");
+    public ResponseEntity<?> verifyUser(HttpServletRequest request) {
+        if (authService.verifyUser(request)) {
+            return ResponseEntity.ok("Successful validation!");
         }
-        return ResponseEntity.status(403).body("Confirmation token expired!");
+        return ResponseEntity.status(403).body("Confirmation token expired or not present!");
     }
 }

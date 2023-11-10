@@ -14,6 +14,7 @@ import jakarta.mail.MessagingException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -32,6 +33,8 @@ public class AuthService {
     private final AuthenticationManager authManager;
     private final EmailSenderService emailSenderService;
     private final UserService userService;
+    @Value("${website.frontend.url}")
+    private String frontendUrl;
 
     public AuthService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder, JwtService jwtService, AuthenticationManager authManager, EmailSenderService emailSenderService, UserService userService) {
         this.userRepository = userRepository;
@@ -42,7 +45,7 @@ public class AuthService {
         this.userService = userService;
     }
 
-    public void register(RegisterRequest request, String siteUrl) throws
+    public void register(RegisterRequest request) throws
             MessagingException,
             UnsupportedEncodingException,
             UserAlreadyExistsException {
@@ -66,7 +69,7 @@ public class AuthService {
         user.setEnabled(false);
 
         userService.save(user);
-        emailSenderService.sendVerificationEmail(user, siteUrl);
+        emailSenderService.sendVerificationEmail(user, frontendUrl);
     }
 
     public JwtAuthenticationResponse login(LoginRequest request, HttpServletResponse response) {
@@ -114,18 +117,27 @@ public class AuthService {
         return false;
     }
 
-    public boolean verifyUser(String authorizationHeader) {
-        String authHeader = authorizationHeader.substring(7);
-        Optional<User> potential_user = userRepository.findByUsername(jwtService.extractUsername(authHeader));
-        if (potential_user.isPresent()) {
-            User user = potential_user.get();
-            return jwtService.isTokenValid(authHeader, user);
-        }
-        return false;
-    }
+    public boolean verifyUser(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
 
-    public String getSiteURL(HttpServletRequest request) {
-        String siteURL = request.getRequestURL().toString();
-        return siteURL.replace(request.getServletPath(), "");
+        String jwt = null;
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("jwt".equals(cookie.getName())) {
+                    jwt = cookie.getValue();
+                    break;
+                }
+            }
+        }
+
+        if (jwt != null) {
+            Optional<User> potential_user = userRepository.findByUsername(jwtService.extractUsername(jwt));
+            if (potential_user.isPresent()) {
+                User user = potential_user.get();
+                return jwtService.isTokenValid(jwt, user);
+            }
+        }
+
+        return false;
     }
 }

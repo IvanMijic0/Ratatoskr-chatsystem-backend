@@ -5,6 +5,7 @@ import ba.nosite.chatsystem.core.services.authServices.JwtService;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotNull;
@@ -36,14 +37,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     @NotNull HttpServletResponse response,
                                     @NotNull FilterChain filterChain)
             throws ServletException, IOException {
-        final String authHeader = request.getHeader("Authorization");
-        final String jwt;
+        String jwt = "";
         final String username;
-        if (StringUtils.isEmpty(authHeader) || !StringUtils.startsWith(authHeader, "Bearer ")) {
+
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("jwt".equals(cookie.getName())) {
+                    jwt = cookie.getValue();
+                    break;
+                }
+            }
+        }
+        if (StringUtils.isEmpty(jwt)) {
             filterChain.doFilter(request, response);
             return;
         }
-        jwt = authHeader.substring(7);
+
         System.out.println("JWT - ".concat(jwt));
 
         try {
@@ -68,6 +78,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             jsonResponse(response, "JWT token has expired or is not valid.");
             return;
         }
+
         filterChain.doFilter(request, response);
     }
+
 }
