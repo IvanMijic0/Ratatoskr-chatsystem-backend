@@ -5,7 +5,6 @@ import ba.nosite.chatsystem.core.services.authServices.JwtService;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotNull;
@@ -20,6 +19,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+import static ba.nosite.chatsystem.helpers.CookieUtils.extractCookieFromJwt;
 import static ba.nosite.chatsystem.helpers.customJSONResponse.jsonResponse;
 
 @Component
@@ -37,18 +37,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     @NotNull HttpServletResponse response,
                                     @NotNull FilterChain filterChain)
             throws ServletException, IOException {
-        String jwt = "";
+        String jwt = extractCookieFromJwt(request, "jwt");
+        System.out.println(jwt);
         final String username;
 
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if ("jwt".equals(cookie.getName())) {
-                    jwt = cookie.getValue();
-                    break;
-                }
-            }
-        }
         if (StringUtils.isEmpty(jwt)) {
             filterChain.doFilter(request, response);
             return;

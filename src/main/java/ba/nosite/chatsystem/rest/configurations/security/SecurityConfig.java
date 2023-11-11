@@ -80,9 +80,9 @@ public class SecurityConfig extends SecurityConfigurerAdapter<DefaultSecurityFil
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(HttpMethod.POST, "/api/v1/register", "/api/v1/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/register", "/api/v1/auth/login").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/test/**", "/v3/api-docs/**",
-                                "/swagger-ui/**", "api/v1/verifyEmailToken", "/", "/topic/**", "/app",
+                                "/swagger-ui/**", "api/v1/auth/verifyEmailToken", "/", "/topic/**", "/app",
                                 "/index.html", "/css/main.css", "/js/**", "/favicon.ico",
                                 "/ws/**").permitAll()
                         .anyRequest().authenticated()

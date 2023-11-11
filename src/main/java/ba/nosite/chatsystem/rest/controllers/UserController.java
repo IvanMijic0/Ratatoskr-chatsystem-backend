@@ -1,9 +1,10 @@
 package ba.nosite.chatsystem.rest.controllers;
 
-import ba.nosite.chatsystem.core.dto.userDtos.UserResponse;
+import ba.nosite.chatsystem.core.dto.userDtos.UsersResponse;
 import ba.nosite.chatsystem.core.exceptions.auth.UserNotFoundException;
 import ba.nosite.chatsystem.core.models.User;
 import ba.nosite.chatsystem.core.services.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,7 +24,7 @@ public class UserController {
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> list() {
-        List<UserResponse> users = userService.list();
+        List<UsersResponse> users = userService.list();
         return ResponseEntity.ok(users);
     }
 
@@ -49,6 +50,16 @@ public class UserController {
         try {
             userService.delete(userId);
             return ResponseEntity.status(HttpStatus.OK).body("User with ID " + userId + " has been successfully deleted.");
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/specific")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<?> getUserById(HttpServletRequest request) {
+        try {
+            return ResponseEntity.ok(userService.getUserById(request));
         } catch (UserNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }

@@ -5,14 +5,16 @@ import ba.nosite.chatsystem.core.models.enums.Role;
 
 import java.time.LocalTime;
 
-public class UserResponse {
+public class UsersResponse {
+    private final String _id;
+    private final String username;
     private final String email;
     private final LocalTime createdAt;
     private final LocalTime updatedAt;
     private final Role role;
-    private String username;
 
-    public UserResponse(User user) {
+    public UsersResponse(User user) {
+        this._id = user.get_id();
         this.username = user.getUsername();
         this.email = user.getEmail();
         this.createdAt = user.getCreatedAt();
@@ -24,8 +26,8 @@ public class UserResponse {
         return username;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public String get_id() {
+        return _id;
     }
 
     public String getEmail() {

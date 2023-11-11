@@ -7,11 +7,9 @@ import ba.nosite.chatsystem.core.exceptions.auth.AuthenticationException;
 import ba.nosite.chatsystem.core.exceptions.auth.UserAlreadyExistsException;
 import ba.nosite.chatsystem.core.models.User;
 import ba.nosite.chatsystem.core.models.enums.Role;
-import ba.nosite.chatsystem.core.repository.UserRepository;
 import ba.nosite.chatsystem.core.services.EmailSenderService;
 import ba.nosite.chatsystem.core.services.UserService;
 import jakarta.mail.MessagingException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,11 +21,12 @@ import org.springframework.stereotype.Service;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
-import java.util.Optional;
+
+import static ba.nosite.chatsystem.helpers.CookieUtils.extractCookieFromJwt;
+import static ba.nosite.chatsystem.helpers.CookieUtils.setJwtCookie;
 
 @Service
 public class AuthService {
-    private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authManager;
@@ -36,8 +35,7 @@ public class AuthService {
     @Value("${website.frontend.url}")
     private String frontendUrl;
 
-    public AuthService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder, JwtService jwtService, AuthenticationManager authManager, EmailSenderService emailSenderService, UserService userService) {
-        this.userRepository = userRepository;
+    public AuthService(BCryptPasswordEncoder passwordEncoder, JwtService jwtService, AuthenticationManager authManager, EmailSenderService emailSenderService, UserService userService) {
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.authManager = authManager;
@@ -50,16 +48,13 @@ public class AuthService {
             UnsupportedEncodingException,
             UserAlreadyExistsException {
         User user = new User(
-                request.getFirst_name(),
-                request.getLast_name(),
                 request.getUsername(),
                 request.getEmail(),
                 passwordEncoder.encode(request.getPassword()),
                 Role.ROLE_USER
         );
-        Optional<User> potentialExistingUser = userRepository.findByEmail(user.getEmail());
-        if (potentialExistingUser.isPresent()) {
-            User existingUser = potentialExistingUser.get();
+        User existingUser = userService.findUserByEmail(user.getEmail());
+        if (existingUser != null) {
             if (existingUser.getEnabled().equals(true)) {
                 throw new UserAlreadyExistsException("User already exists in database.");
             }
@@ -75,22 +70,17 @@ public class AuthService {
     public JwtAuthenticationResponse login(LoginRequest request, HttpServletResponse response) {
         try {
             authManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
-            Optional<User> myb_user = userRepository.findByEmailOrUsername(request.getEmail(), request.getUsername());
+            User user = userService.findUserByUsernameOrEmail(request.getEmail(), request.getUsername());
 
-            if (myb_user.isEmpty()) {
+            if (user == null) {
                 throw new AuthenticationException("Invalid Credentials");
             }
-            User user = myb_user.get();
+            // Could be useful, I do not know what more I would need in my payload
             String jwt = jwtService.generateTokenWithAdditionalClaims(Map.of("user_id", user.get_id()), user);
+            String jwtRefreshToken = jwtService.generateRefreshToken(user);
 
-            long maxAge = jwtService.extractExpiration(jwt).getTime() - System.currentTimeMillis();
-
-            Cookie jwtCookie = new Cookie("jwt", jwt);
-            jwtCookie.setMaxAge((int) (maxAge / 1000));
-            jwtCookie.setSecure(false); // TODO --> For testing
-            jwtCookie.setHttpOnly(true);
-
-            response.addCookie(jwtCookie);
+            setJwtCookie(response, jwt, jwtService);
+            setJwtCookie(response, jwtRefreshToken, "jwtRefresh", jwtService);
 
             return new JwtAuthenticationResponse(HttpStatus.OK, "Successfully logged in", jwt);
         } catch (Exception ex) {
@@ -99,11 +89,10 @@ public class AuthService {
     }
 
     public boolean verifyEmailToken(String verificationCode) {
-        Optional<User> maybe_user = userRepository.findByVerificationCode(verificationCode);
-        if (maybe_user.isEmpty()) {
+        User user = userService.findUserByVerificationCode(verificationCode);
+        if (user == null) {
             return false;
         }
-        User user = maybe_user.get();
         if (user.isEnabled()) {
             return false;
         }
@@ -118,26 +107,29 @@ public class AuthService {
     }
 
     public boolean verifyUser(HttpServletRequest request) {
-        Cookie[] cookies = request.getCookies();
-
-        String jwt = null;
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if ("jwt".equals(cookie.getName())) {
-                    jwt = cookie.getValue();
-                    break;
-                }
-            }
-        }
-
+        String jwt = extractCookieFromJwt(request, "jwt");
         if (jwt != null) {
-            Optional<User> potential_user = userRepository.findByUsername(jwtService.extractUsername(jwt));
-            if (potential_user.isPresent()) {
-                User user = potential_user.get();
-                return jwtService.isTokenValid(jwt, user);
+            User user = userService.findUserByUsername(jwtService.extractUsername(jwt));
+            if (user == null) {
+                return false;
             }
+            return jwtService.isTokenValid(jwt, user);
         }
+        return false;
+    }
 
+    public boolean refreshJwtCookie(HttpServletRequest request, HttpServletResponse response) {
+        String jwtRefresh = extractCookieFromJwt(request, "jwtRefresh");
+        if (jwtRefresh == null) {
+            return false;
+        }
+        User user = userService.findUserByUsername(jwtService.extractUsername(jwtRefresh));
+
+        if (user != null) {
+            String jwt = jwtService.generateTokenWithAdditionalClaims(Map.of("user_id", user.get_id()), user);
+            setJwtCookie(response, jwt, jwtService);
+            return true;
+        }
         return false;
     }
 }

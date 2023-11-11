@@ -36,7 +36,7 @@ public class EmailSenderService {
         helper.setTo(toAddress);
         helper.setSubject(subject);
 
-        content = content.replace("[[name]]", user.getFull_name());
+        content = content.replace("[[name]]", user.getUsername());
         String verifyURL = siteURL.concat("/verify-email-token?code=").concat(user.getVerificationCode());
 
         content = content.replace("[[URL]]", verifyURL);

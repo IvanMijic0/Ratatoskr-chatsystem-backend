@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.security.auth.login.LoginException;
 
 @RestController
-@RequestMapping("/api/v1/")
+@RequestMapping("/api/v1/auth")
 public class AuthController {
     private final AuthService authService;
 
@@ -24,7 +24,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequest user, HttpServletRequest request) {
+    public ResponseEntity<?> register(@RequestBody RegisterRequest user) {
         try {
             authService.register(user);
             return ResponseEntity.ok("Successfully sent Verification Code!");
@@ -38,7 +38,7 @@ public class AuthController {
         try {
             return ResponseEntity.ok(authService.login(request, response));
         } catch (Exception e) {
-            throw new LoginException();
+            throw new LoginException("Failed to Login User.");
         }
     }
 
@@ -47,7 +47,7 @@ public class AuthController {
         if (authService.verifyEmailToken(code)) {
             return ResponseEntity.ok("Successful verification!");
         }
-        return ResponseEntity.status(403).body("Confirmation token expired!");
+        return ResponseEntity.status(401).body("Confirmation token expired!");
     }
 
     @PostMapping("/validateToken")
@@ -56,6 +56,15 @@ public class AuthController {
         if (authService.verifyUser(request)) {
             return ResponseEntity.ok("Successful validation!");
         }
-        return ResponseEntity.status(403).body("Confirmation token expired or not present!");
+        return ResponseEntity.status(401).body("Confirmation token expired or not present!");
+    }
+
+    @GetMapping("/refreshToken")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<?> refreshToken(HttpServletRequest request, HttpServletResponse response) {
+        if (authService.refreshJwtCookie(request, response)) {
+            return ResponseEntity.ok("Successfully Refreshed token");
+        }
+        return ResponseEntity.status(401).body("Failed to refresh token");
     }
 }
