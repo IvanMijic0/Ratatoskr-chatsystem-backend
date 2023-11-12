@@ -11,7 +11,7 @@ import java.util.Optional;
 
 public class JwtUtils {
     public static String generateJwt(LoginRequest request, UserRepository userRepository, JwtService jwtService) {
-        Optional<User> myb_user = userRepository.findByEmailOrUsername(request.getEmail(), request.getUsername());
+        Optional<User> myb_user = userRepository.findByEmailOrUsername(request.getUsernameOrEmail());
 
         if (myb_user.isEmpty()) {
             throw new AuthenticationException("Invalid Credentials");

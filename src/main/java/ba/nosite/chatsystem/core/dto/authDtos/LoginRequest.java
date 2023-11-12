@@ -1,24 +1,15 @@
 package ba.nosite.chatsystem.core.dto.authDtos;
 
 public class LoginRequest {
-    String username;
-    String email;
+    String usernameOrEmail;
     String password;
 
-    public String getUsername() {
-        return username;
+    public String getUsernameOrEmail() {
+        return usernameOrEmail;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
+    public void setUsernameOrEmail(String usernameOrEmail) {
+        this.usernameOrEmail = usernameOrEmail;
     }
 
     public String getPassword() {

@@ -1,8 +1,7 @@
 package ba.nosite.chatsystem.core.services.authServices;
 
-import ba.nosite.chatsystem.core.dto.authDtos.JwtAuthenticationResponse;
-import ba.nosite.chatsystem.core.dto.authDtos.LoginRequest;
-import ba.nosite.chatsystem.core.dto.authDtos.RegisterRequest;
+import ba.nosite.chatsystem.core.dto.authDtos.*;
+import ba.nosite.chatsystem.core.dto.userDtos.UserResponseWithoutId;
 import ba.nosite.chatsystem.core.exceptions.auth.AuthenticationException;
 import ba.nosite.chatsystem.core.exceptions.auth.UserAlreadyExistsException;
 import ba.nosite.chatsystem.core.models.User;
@@ -15,12 +14,12 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
+import java.util.UUID;
 
 import static ba.nosite.chatsystem.helpers.CookieUtils.extractCookieFromJwt;
 import static ba.nosite.chatsystem.helpers.CookieUtils.setJwtCookie;
@@ -67,25 +66,61 @@ public class AuthService {
         emailSenderService.sendVerificationEmail(user, frontendUrl);
     }
 
+    public void registerWithGoogle(GoogleRegisterRequest request) throws UserAlreadyExistsException {
+        User user = new User(
+                request
+                        .firstName()
+                        .concat(request.lastName())
+                        .concat("#")
+                        .concat(UUID.randomUUID().toString()),
+                request.email(),
+                passwordEncoder.encode(request.password()),
+                Role.ROLE_USER
+        );
+
+        user.setEnabled(true);
+        userService.save(user);
+
+        new UserResponseWithoutId(user);
+    }
+
     public JwtAuthenticationResponse login(LoginRequest request, HttpServletResponse response) {
         try {
-            authManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
-            User user = userService.findUserByUsernameOrEmail(request.getEmail(), request.getUsername());
+            User user = userService.findUserByUsernameOrEmail(request.getUsernameOrEmail());
 
-            if (user == null) {
+            if (user == null || !passwordEncoder.matches(request.getPassword(), user.getPassword())) {
                 throw new AuthenticationException("Invalid Credentials");
             }
-            // Could be useful, I do not know what more I would need in my payload
-            String jwt = jwtService.generateTokenWithAdditionalClaims(Map.of("user_id", user.get_id()), user);
-            String jwtRefreshToken = jwtService.generateRefreshToken(user);
-
-            setJwtCookie(response, jwt, jwtService);
-            setJwtCookie(response, jwtRefreshToken, "jwtRefresh", jwtService);
-
-            return new JwtAuthenticationResponse(HttpStatus.OK, "Successfully logged in", jwt);
+            return getJwtAuthenticationResponse(response, user);
         } catch (Exception ex) {
             throw new AuthenticationException("Invalid Credentials", ex);
         }
+    }
+
+    public JwtAuthenticationResponse loginWithGoogle(GoogleLoginRequest request, HttpServletResponse response) {
+        try {
+            User user = userService.findUserByEmail(request.email());
+            user.setGoogleId(request.googleId());
+            user.setAvatarImageUrl(request.avatarImageUrl());
+            user.setFirst_name(request.firstName());
+            user.setLast_name(request.lastName());
+            userService.save(user);
+
+            return getJwtAuthenticationResponse(response, user);
+        } catch (Exception ex) {
+            throw new AuthenticationException("Invalid Credentials", ex);
+        }
+    }
+
+    private JwtAuthenticationResponse getJwtAuthenticationResponse(HttpServletResponse response, User user) {
+        // Could be useful, I do not know what more I would need in my payload
+        String jwt = jwtService.generateTokenWithAdditionalClaims(Map.of("user_id", user.get_id()), user);
+        String jwtRefreshToken = jwtService.generateRefreshToken(user);
+
+        setJwtCookie(response, jwt, jwtService);
+        setJwtCookie(response, jwtRefreshToken, "jwtRefresh", jwtService);
+
+        return new JwtAuthenticationResponse(HttpStatus.OK, "Successfully logged in", jwt);
     }
 
     public boolean verifyEmailToken(String verificationCode) {

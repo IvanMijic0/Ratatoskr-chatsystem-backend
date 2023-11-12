@@ -1,5 +1,6 @@
 package ba.nosite.chatsystem.rest.controllers;
 
+import ba.nosite.chatsystem.core.dto.userDtos.UserEmail;
 import ba.nosite.chatsystem.core.dto.userDtos.UsersResponse;
 import ba.nosite.chatsystem.core.exceptions.auth.UserNotFoundException;
 import ba.nosite.chatsystem.core.models.User;
@@ -49,7 +50,11 @@ public class UserController {
     public ResponseEntity<String> deleteUser(@PathVariable String userId) {
         try {
             userService.delete(userId);
-            return ResponseEntity.status(HttpStatus.OK).body("User with ID " + userId + " has been successfully deleted.");
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    "User with ID "
+                            .concat(userId)
+                            .concat(" has been successfully deleted.")
+            );
         } catch (UserNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
@@ -63,5 +68,13 @@ public class UserController {
         } catch (UserNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
+    }
+
+    @PostMapping("/checkIfExists")
+    public ResponseEntity<?> checkIfUserExistsInDatabaseByEmail(@RequestBody UserEmail user) {
+        if (userService.checkIfUserIsInDatabaseByEmail(user.email())) {
+            return ResponseEntity.ok("User exists in database.");
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found in database.");
     }
 }

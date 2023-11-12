@@ -27,6 +27,8 @@ public class User implements UserDetails {
     @Indexed(unique = true)
     private String email;
     private String password;
+    private String googleId;
+    private String avatarImageUrl;
     private LocalTime createdAt;
     private LocalTime updatedAt;
     @Enumerated(EnumType.STRING)
@@ -53,6 +55,22 @@ public class User implements UserDetails {
         this.email = email;
         this.password = password;
         this.role = role;
+    }
+
+    public String getGoogleId() {
+        return googleId;
+    }
+
+    public void setGoogleId(String googleId) {
+        this.googleId = googleId;
+    }
+
+    public String getAvatarImageUrl() {
+        return avatarImageUrl;
+    }
+
+    public void setAvatarImageUrl(String avatarImageUrl) {
+        this.avatarImageUrl = avatarImageUrl;
     }
 
     public String get_id() {

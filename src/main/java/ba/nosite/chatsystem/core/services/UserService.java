@@ -1,6 +1,6 @@
 package ba.nosite.chatsystem.core.services;
 
-import ba.nosite.chatsystem.core.dto.userDtos.UserResponse;
+import ba.nosite.chatsystem.core.dto.userDtos.UserResponseWithoutId;
 import ba.nosite.chatsystem.core.dto.userDtos.UsersResponse;
 import ba.nosite.chatsystem.core.exceptions.auth.UserNotFoundException;
 import ba.nosite.chatsystem.core.models.User;
@@ -43,8 +43,8 @@ public class UserService {
         return optionalUser.orElse(null);
     }
 
-    public User findUserByUsernameOrEmail(String email, String username) {
-        Optional<User> optionalUser = userRepository.findByEmailOrUsername(email, username);
+    public User findUserByUsernameOrEmail(String usernameOrEmail) {
+        Optional<User> optionalUser = userRepository.findByEmailOrUsername(usernameOrEmail);
         return optionalUser.orElse(null);
     }
 
@@ -72,7 +72,7 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-    public UserResponse update(String userId, User updatedUser) {
+    public UserResponseWithoutId update(String userId, User updatedUser) {
         Optional<User> existingUser = userRepository.findById(userId);
 
         if (existingUser.isPresent()) {
@@ -88,7 +88,7 @@ public class UserService {
             }
             updatedUser.setUpdatedAt(LocalTime.now());
 
-            return new UserResponse(userRepository.save(userToUpdate));
+            return new UserResponseWithoutId(userRepository.save(userToUpdate));
         } else {
             throw new UserNotFoundException("User not found with ID: " + userId);
         }
@@ -103,7 +103,7 @@ public class UserService {
         }
     }
 
-    public UserResponse getUserById(HttpServletRequest request) {
+    public UserResponseWithoutId getUserById(HttpServletRequest request) {
         String jwt = extractCookieFromJwt(request, "jwt");
         if (jwt != null) {
             String userId = jwtService.extractCustomClaim(jwt, "user_id");
@@ -111,11 +111,16 @@ public class UserService {
             Optional<User> potentialUser = userRepository.findById(userId);
             if (potentialUser.isPresent()) {
                 User user = potentialUser.get();
-                return new UserResponse(user);
+                return new UserResponseWithoutId(user);
             } else {
                 throw new UserNotFoundException("User not found with ID: ".concat(userId));
             }
         }
         return null;
+    }
+
+    public boolean checkIfUserIsInDatabaseByEmail(String email) {
+        Optional<User> potentialUser = userRepository.findByEmail(email);
+        return potentialUser.isPresent();
     }
 }
