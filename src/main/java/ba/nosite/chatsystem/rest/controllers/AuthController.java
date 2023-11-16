@@ -4,8 +4,6 @@ import ba.nosite.chatsystem.core.dto.authDtos.*;
 import ba.nosite.chatsystem.core.exceptions.auth.AuthenticationException;
 import ba.nosite.chatsystem.core.exceptions.auth.RegistrationException;
 import ba.nosite.chatsystem.core.services.authServices.AuthService;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -43,18 +41,18 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<JwtAuthenticationResponse> login(@RequestBody LoginRequest request, HttpServletResponse response) throws LoginException {
+    public ResponseEntity<JwtAuthenticationResponse> login(@RequestBody LoginRequest request) throws LoginException {
         try {
-            return ResponseEntity.ok(authService.login(request, response));
+            return ResponseEntity.ok(authService.login(request));
         } catch (Exception e) {
             throw new LoginException("Failed to Login User.");
         }
     }
 
     @PostMapping("/loginWithGoogle")
-    public JwtAuthenticationResponse loginWithGoogle(@RequestBody GoogleLoginRequest request, HttpServletResponse response) {
+    public JwtAuthenticationResponse loginWithGoogle(@RequestBody GoogleLoginRequest request) {
         try {
-            return authService.loginWithGoogle(request, response);
+            return authService.loginWithGoogle(request);
         } catch (AuthenticationException ex) {
             throw new AuthenticationException("Invalid Credentials", ex);
         }
@@ -70,8 +68,8 @@ public class AuthController {
 
     @PostMapping("/validateToken")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<?> verifyUser(HttpServletRequest request) {
-        if (authService.verifyUser(request)) {
+    public ResponseEntity<?> validateToken(@RequestHeader("Authorization") String authHeader) {
+        if (authService.validateToken(authHeader)) {
             return ResponseEntity.ok("Successful validation!");
         }
         return ResponseEntity.status(401).body("Confirmation token expired or not present!");
@@ -79,10 +77,12 @@ public class AuthController {
 
     @GetMapping("/refreshToken")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<?> refreshToken(HttpServletRequest request, HttpServletResponse response) {
-        if (authService.refreshJwtCookie(request, response)) {
-            return ResponseEntity.ok("Successfully Refreshed token");
+    public ResponseEntity<?> refreshToken(@RequestBody String refreshToken) {
+        try {
+            authService.refreshToken(refreshToken);
+            return ResponseEntity.status(200).body("Successfully refreshed token");
+        } catch (Exception e) {
+            return ResponseEntity.status(401).body("Failed to refresh token");
         }
-        return ResponseEntity.status(401).body("Failed to refresh token");
     }
 }

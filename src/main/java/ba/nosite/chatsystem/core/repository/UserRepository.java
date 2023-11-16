@@ -1,6 +1,6 @@
 package ba.nosite.chatsystem.core.repository;
 
-import ba.nosite.chatsystem.core.models.User;
+import ba.nosite.chatsystem.core.models.user.User;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 

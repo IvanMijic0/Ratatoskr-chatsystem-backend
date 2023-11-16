@@ -1,6 +1,6 @@
 package ba.nosite.chatsystem.core.services;
 
-import ba.nosite.chatsystem.core.models.User;
+import ba.nosite.chatsystem.core.models.user.User;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.mail.javamail.JavaMailSender;

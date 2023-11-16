@@ -1,4 +1,4 @@
-package ba.nosite.chatsystem.core.models.enums;
+package ba.nosite.chatsystem.core.models.user;
 
 public enum Role {
     ROLE_ADMIN,

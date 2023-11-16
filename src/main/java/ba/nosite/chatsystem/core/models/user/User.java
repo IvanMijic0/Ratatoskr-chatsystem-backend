@@ -1,6 +1,5 @@
-package ba.nosite.chatsystem.core.models;
+package ba.nosite.chatsystem.core.models.user;
 
-import ba.nosite.chatsystem.core.models.enums.Role;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;

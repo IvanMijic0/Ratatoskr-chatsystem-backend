@@ -1,4 +1,4 @@
-package ba.nosite.chatsystem.core.models.enums;
+package ba.nosite.chatsystem.core.models.chatModels;
 
 public enum MessageType {
     MESSAGE,

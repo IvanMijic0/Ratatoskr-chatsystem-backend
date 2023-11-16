@@ -1,6 +1,6 @@
 package ba.nosite.chatsystem.core.models.webSocketModels;
 
-import ba.nosite.chatsystem.core.models.enums.MessageType;
+import ba.nosite.chatsystem.core.models.chatModels.MessageType;
 
 import java.util.Date;
 

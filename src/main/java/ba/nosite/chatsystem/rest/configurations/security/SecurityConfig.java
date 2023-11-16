@@ -59,16 +59,18 @@ public class SecurityConfig extends SecurityConfigurerAdapter<DefaultSecurityFil
     }
 
     @Bean
-    CorsConfigurationSource corsConfigurationSource() {
+    public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin(frontendUrl);
-        configuration.setAllowedMethods(List.of("GET", "POST"));
-        configuration.addAllowedHeader("*");
+        configuration.setAllowedOrigins(List.of(frontendUrl));
+        configuration.setAllowedMethods(List.of("GET", "POST", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
+
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -85,7 +87,7 @@ public class SecurityConfig extends SecurityConfigurerAdapter<DefaultSecurityFil
                                 "/api/v1/auth/registerWithGoogle",
                                 "/api/v1/auth/login",
                                 "/api/v1/auth/loginWithGoogle",
-                                "api/v1/user/checkIfExists"
+                                "/api/v1/user/checkIfExists"
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET,
                                 "/api/v1/test/**",

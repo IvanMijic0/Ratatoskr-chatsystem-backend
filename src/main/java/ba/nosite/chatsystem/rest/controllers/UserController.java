@@ -3,9 +3,8 @@ package ba.nosite.chatsystem.rest.controllers;
 import ba.nosite.chatsystem.core.dto.userDtos.UserEmail;
 import ba.nosite.chatsystem.core.dto.userDtos.UsersResponse;
 import ba.nosite.chatsystem.core.exceptions.auth.UserNotFoundException;
-import ba.nosite.chatsystem.core.models.User;
+import ba.nosite.chatsystem.core.models.user.User;
 import ba.nosite.chatsystem.core.services.UserService;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -62,9 +61,9 @@ public class UserController {
 
     @GetMapping("/specific")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<?> getUserById(HttpServletRequest request) {
+    public ResponseEntity<?> getUserById(@RequestHeader("Authorization") String authHeader) {
         try {
-            return ResponseEntity.ok(userService.getUserById(request));
+            return ResponseEntity.ok(userService.getUserById(authHeader));
         } catch (UserNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }

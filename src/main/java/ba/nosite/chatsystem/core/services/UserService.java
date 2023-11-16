@@ -3,11 +3,10 @@ package ba.nosite.chatsystem.core.services;
 import ba.nosite.chatsystem.core.dto.userDtos.UserResponseWithoutId;
 import ba.nosite.chatsystem.core.dto.userDtos.UsersResponse;
 import ba.nosite.chatsystem.core.exceptions.auth.UserNotFoundException;
-import ba.nosite.chatsystem.core.models.User;
-import ba.nosite.chatsystem.core.models.enums.Role;
+import ba.nosite.chatsystem.core.models.user.Role;
+import ba.nosite.chatsystem.core.models.user.User;
 import ba.nosite.chatsystem.core.repository.UserRepository;
 import ba.nosite.chatsystem.core.services.authServices.JwtService;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -17,7 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static ba.nosite.chatsystem.helpers.CookieUtils.extractCookieFromJwt;
+import static ba.nosite.chatsystem.helpers.jwtUtils.extractJwtFromHeader;
 
 @Service
 public class UserService {
@@ -103,20 +102,18 @@ public class UserService {
         }
     }
 
-    public UserResponseWithoutId getUserById(HttpServletRequest request) {
-        String jwt = extractCookieFromJwt(request, "jwt");
-        if (jwt != null) {
-            String userId = jwtService.extractCustomClaim(jwt, "user_id");
+    public UserResponseWithoutId getUserById(String authHeader) {
+        String jwt = extractJwtFromHeader(authHeader);
+        String username = jwtService.extractUsername(jwt);
 
-            Optional<User> potentialUser = userRepository.findById(userId);
-            if (potentialUser.isPresent()) {
-                User user = potentialUser.get();
-                return new UserResponseWithoutId(user);
-            } else {
-                throw new UserNotFoundException("User not found with ID: ".concat(userId));
-            }
+        Optional<User> potentialUser = userRepository.findByUsername(username);
+
+        if (potentialUser.isPresent()) {
+            User user = potentialUser.get();
+            return new UserResponseWithoutId(user);
+        } else {
+            throw new UserNotFoundException("User not found");
         }
-        return null;
     }
 
     public boolean checkIfUserIsInDatabaseByEmail(String email) {
