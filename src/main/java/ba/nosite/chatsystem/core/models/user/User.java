@@ -1,7 +1,9 @@
 package ba.nosite.chatsystem.core.models.user;
 
+import ba.nosite.chatsystem.core.models.chatModels.Server;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -17,9 +19,7 @@ import java.util.List;
 public class User implements UserDetails {
     @Id
     private String _id;
-
     private String first_name;
-
     private String last_name;
     @Indexed(unique = true)
     private String username;
@@ -34,6 +34,8 @@ public class User implements UserDetails {
     private Role role;
     private String verificationCode;
     private Boolean enabled;
+    @DBRef(lazy = true)
+    private List<Server> servers;
 
     public User() {
     }
@@ -54,6 +56,14 @@ public class User implements UserDetails {
         this.email = email;
         this.password = password;
         this.role = role;
+    }
+
+    public List<Server> getServers() {
+        return servers;
+    }
+
+    public void setServers(List<Server> servers) {
+        this.servers = servers;
     }
 
     public String getGoogleId() {
