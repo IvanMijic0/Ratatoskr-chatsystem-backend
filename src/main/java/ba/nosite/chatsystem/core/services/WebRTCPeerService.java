@@ -1,7 +1,7 @@
 package ba.nosite.chatsystem.core.services;
 
-import ba.nosite.chatsystem.core.models.webSocketModels.WebRTCMessage;
-import ba.nosite.chatsystem.core.models.webSocketModels.WebRTCPeer;
+import ba.nosite.chatsystem.core.models.chat.WebRTCMessage;
+import ba.nosite.chatsystem.core.models.chat.WebRTCPeer;
 import ba.nosite.chatsystem.core.repository.WebRTCPeerRepository;
 import org.springframework.stereotype.Service;
 

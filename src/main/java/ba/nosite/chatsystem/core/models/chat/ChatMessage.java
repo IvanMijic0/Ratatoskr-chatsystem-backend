@@ -1,6 +1,4 @@
-package ba.nosite.chatsystem.core.models.webSocketModels;
-
-import ba.nosite.chatsystem.core.models.chatModels.MessageType;
+package ba.nosite.chatsystem.core.models.chat;
 
 import java.util.Date;
 
@@ -76,4 +74,6 @@ public class ChatMessage {
     public void setType(MessageType type) {
         this.type = type;
     }
+
+
 }

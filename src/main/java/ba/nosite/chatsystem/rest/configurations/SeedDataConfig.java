@@ -12,6 +12,7 @@ import java.time.LocalTime;
 @Component
 public class SeedDataConfig implements CommandLineRunner {
     private final UserRepository userRepository;
+
     private final BCryptPasswordEncoder passwordEncoder;
 
     public SeedDataConfig(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {

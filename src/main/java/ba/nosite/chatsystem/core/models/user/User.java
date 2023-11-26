@@ -1,19 +1,21 @@
 package ba.nosite.chatsystem.core.models.user;
 
-import ba.nosite.chatsystem.core.models.chatModels.Server;
+import ba.nosite.chatsystem.core.models.chat.Server;
+import jakarta.validation.constraints.Email;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import javax.persistence.Column;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import java.time.LocalTime;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 @Document(collection = "user")
 public class User implements UserDetails {
@@ -21,9 +23,10 @@ public class User implements UserDetails {
     private String _id;
     private String first_name;
     private String last_name;
-    @Indexed(unique = true)
+    @Column(unique = true)
+    @Email(message = "Invalid email address")
     private String username;
-    @Indexed(unique = true)
+    @Column(unique = true)
     private String email;
     private String password;
     private String googleId;
@@ -199,5 +202,22 @@ public class User implements UserDetails {
 
     public void setEnabled(Boolean enabled) {
         this.enabled = enabled;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(getFull_name(), user.getFull_name()) &&
+                Objects.equals(getUsername(), user.getUsername()) &&
+                Objects.equals(getEmail(), user.getEmail()) &&
+                Objects.equals(getPassword(), user.getPassword()) &&
+                getRole() == user.getRole();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getFull_name(), getUsername(), getEmail(), getPassword(), getRole());
     }
 }

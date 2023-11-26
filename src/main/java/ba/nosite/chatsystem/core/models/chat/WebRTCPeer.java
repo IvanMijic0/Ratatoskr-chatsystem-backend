@@ -1,4 +1,4 @@
-package ba.nosite.chatsystem.core.models.webSocketModels;
+package ba.nosite.chatsystem.core.models.chat;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;

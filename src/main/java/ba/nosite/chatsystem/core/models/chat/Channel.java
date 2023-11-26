@@ -1,4 +1,4 @@
-package ba.nosite.chatsystem.core.models.chatModels;
+package ba.nosite.chatsystem.core.models.chat;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -12,13 +12,12 @@ public class Channel {
     @Id
     private String id;
     private String name;
-
     @Indexed
     private String serverId;
     @DBRef(lazy = true)
-    private List<Message> messages;
+    private List<ChatMessage> messages;
 
-    public Channel(String id, String name, String serverId, List<Message> messages) {
+    public Channel(String id, String name, String serverId, List<ChatMessage> messages) {
         this.id = id;
         this.name = name;
         this.serverId = serverId;
@@ -49,11 +48,11 @@ public class Channel {
         this.serverId = serverId;
     }
 
-    public List<Message> getMessages() {
+    public List<ChatMessage> getMessages() {
         return messages;
     }
 
-    public void setMessages(List<Message> messages) {
+    public void setMessages(List<ChatMessage> messages) {
         this.messages = messages;
     }
 }

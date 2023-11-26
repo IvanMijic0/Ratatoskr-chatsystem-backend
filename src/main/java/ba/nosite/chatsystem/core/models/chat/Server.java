@@ -1,4 +1,4 @@
-package ba.nosite.chatsystem.core.models.chatModels;
+package ba.nosite.chatsystem.core.models.chat;
 
 import ba.nosite.chatsystem.core.models.user.User;
 import org.springframework.data.annotation.Id;

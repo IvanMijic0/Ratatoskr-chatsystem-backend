@@ -1,6 +1,6 @@
 package ba.nosite.chatsystem.rest.controllers;
 
-import ba.nosite.chatsystem.core.models.webSocketModels.WebRTCMessage;
+import ba.nosite.chatsystem.core.models.chat.WebRTCMessage;
 import ba.nosite.chatsystem.core.services.WebRTCPeerService;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
