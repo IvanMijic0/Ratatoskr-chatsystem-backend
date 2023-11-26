@@ -1,0 +1,49 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb://ivan:rootpass@127.0.0.1:27017/chat-system?authSource=admin
+      auto-index-creation: true
+
+  http:
+    media_type:
+      type:
+        css: text/css
+        js: text/javascript
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+    username: ivan.mijic@stu.ibu.edu.ba
+    password: tjrenhqgqvqenche
+
+authentication:
+  token:
+    secret:
+      key: 162b97dac352dfde651e96ddee6c87d9c42e892d55b6f93f1a3e6cd34c422b37
+    
+    expirationHours: 3
+    refreshExpirationHours: 5
+
+website:
+  frontend:
+    url: http://localhost:5173
+
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG
+
+configuration:
+  swagger:
+    app: Chat System <RATATOSKR>
+    description: A basic user chatting system built in Spring Boot and React
+    developer: Ivan Mijić
+    email: ivan.mijic@stu.ibu.edu.ba
