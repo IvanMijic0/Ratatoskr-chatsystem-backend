@@ -35,6 +35,7 @@ build/
 ### Env Vars ###
 **/src/main/**/application.properties
 **/src/main/**/application.yaml
+**/src/test/**/application.yaml
 
 ### FRONTEND ###
 /src/main/resources/static/js/node_modules/
