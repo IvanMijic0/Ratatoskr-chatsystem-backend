@@ -53,8 +53,6 @@ public class User implements UserDetails {
     }
 
     public User(String username, String email, String password, Role role) {
-        this.first_name = null;
-        this.last_name = null;
         this.username = username;
         this.email = email;
         this.password = password;
@@ -122,7 +120,10 @@ public class User implements UserDetails {
     }
 
     public String getFull_name() {
-        return this.first_name.concat(" ").concat(this.last_name);
+        if (this.first_name != null && this.last_name != null) {
+            return this.first_name.concat(" ").concat(this.last_name);
+        }
+        return null;
     }
 
     public String getEmail() {

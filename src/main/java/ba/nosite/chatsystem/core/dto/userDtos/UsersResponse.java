@@ -6,20 +6,28 @@ import ba.nosite.chatsystem.core.models.user.User;
 import java.time.LocalTime;
 
 public class UsersResponse {
-    private final String _id;
-    private final String username;
-    private final String email;
-    private final LocalTime createdAt;
-    private final LocalTime updatedAt;
-    private final Role role;
+    private String _id;
+    private String username;
+    private String email;
+    private LocalTime createdAt;
+    private LocalTime updatedAt;
+    private Role role;
 
     public UsersResponse(User user) {
-        this._id = user.get_id();
-        this.username = user.getUsername();
-        this.email = user.getEmail();
-        this.createdAt = user.getCreatedAt();
-        this.updatedAt = user.getUpdatedAt();
-        this.role = user.getRole();
+        if (user != null) {
+            this._id = user.get_id();
+            this.username = user.getUsername();
+            this.email = user.getEmail();
+            this.createdAt = user.getCreatedAt();
+
+            if (user.getUpdatedAt() != null) {
+                this.updatedAt = user.getUpdatedAt();
+            } else {
+                this.updatedAt = LocalTime.now();
+            }
+
+            this.role = user.getRole();
+        }
     }
 
     public String getUsername() {
@@ -45,5 +53,4 @@ public class UsersResponse {
     public Role getRole() {
         return role;
     }
-
 }

@@ -52,7 +52,7 @@ public class AuthService {
             if (existingUser.getEnabled().equals(true)) {
                 throw new UserAlreadyExistsException("User already exists in database.");
             }
-            userService.delete(existingUser.get_id());
+            userService.deleteById(existingUser.get_id());
         }
         user.setVerificationCode(jwtService.generateToken(user));
         user.setEnabled(false);

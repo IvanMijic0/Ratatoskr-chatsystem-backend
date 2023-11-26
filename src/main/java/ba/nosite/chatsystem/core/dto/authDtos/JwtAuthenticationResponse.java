@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 import java.time.Instant;
 
 public class JwtAuthenticationResponse {
-    private final Instant timestamp;
+    private Instant timestamp;
     private HttpStatus status;
     private String statusText;
     private String token;
@@ -17,6 +17,10 @@ public class JwtAuthenticationResponse {
         this.token = token;
         this.refreshToken = refreshToken;
         this.timestamp = Instant.now();
+    }
+
+    public JwtAuthenticationResponse(String token) {
+        this.token = token;
     }
 
     public String getRefreshToken() {

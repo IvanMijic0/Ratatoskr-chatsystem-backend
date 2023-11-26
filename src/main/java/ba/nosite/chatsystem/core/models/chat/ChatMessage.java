@@ -1,18 +1,20 @@
 package ba.nosite.chatsystem.core.models.chat;
 
+import org.springframework.data.annotation.Id;
+
 import java.util.Date;
 
 public class ChatMessage {
+    @Id
+    private String _id;
     private String senderName;
     private String content;
     private String receiverName;
     private Date date;
     private MessageType type;
-
     public ChatMessage() {
         // Default constructor
     }
-
     public ChatMessage(String senderName, String content, String receiverName, Date date, MessageType type) {
         this.senderName = senderName;
         this.content = content;
@@ -25,6 +27,14 @@ public class ChatMessage {
         this.content = content;
         this.senderName = sender;
         this.type = type;
+    }
+
+    public String get_id() {
+        return _id;
+    }
+
+    public void set_id(String _id) {
+        this._id = _id;
     }
 
     public String getSenderName() {

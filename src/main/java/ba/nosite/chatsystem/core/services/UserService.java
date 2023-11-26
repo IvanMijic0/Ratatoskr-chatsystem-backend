@@ -7,6 +7,7 @@ import ba.nosite.chatsystem.core.models.user.Role;
 import ba.nosite.chatsystem.core.models.user.User;
 import ba.nosite.chatsystem.core.repository.UserRepository;
 import ba.nosite.chatsystem.core.services.authServices.JwtService;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -19,7 +20,7 @@ import java.util.stream.Collectors;
 import static ba.nosite.chatsystem.helpers.jwtUtils.extractJwtFromHeader;
 
 @Service
-public class UserService {
+public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final JwtService jwtService;
 
@@ -93,7 +94,7 @@ public class UserService {
         }
     }
 
-    public void delete(String userId) {
+    public void deleteById(String userId) {
         Optional<User> existingUser = userRepository.findById(userId);
         if (existingUser.isPresent()) {
             userRepository.deleteById(userId);
@@ -119,5 +120,12 @@ public class UserService {
     public boolean checkIfUserIsInDatabaseByEmail(String email) {
         Optional<User> potentialUser = userRepository.findByEmail(email);
         return potentialUser.isPresent();
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        Optional<User> user = userRepository.findByEmailOrUsername(username);
+
+        return user.orElse(null);
     }
 }

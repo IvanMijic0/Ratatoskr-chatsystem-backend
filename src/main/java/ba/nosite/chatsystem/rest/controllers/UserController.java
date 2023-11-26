@@ -48,7 +48,7 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> deleteUser(@PathVariable String userId) {
         try {
-            userService.delete(userId);
+            userService.deleteById(userId);
             return ResponseEntity.status(HttpStatus.OK).body(
                     "User with ID "
                             .concat(userId)
