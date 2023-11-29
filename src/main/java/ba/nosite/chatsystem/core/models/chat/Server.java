@@ -10,22 +10,31 @@ import java.util.List;
 
 @Document(collection = "server")
 public class Server {
+    @Id
+    private String _id;
     private String name;
     @Indexed
     private String ownerId;
     @DBRef(lazy = true)
     private List<User> members;
-    @Id
-    private String id;
     @DBRef(lazy = true)
     private List<Channel> channels;
+    private String avatarIconUrl;
 
-    public Server(String name, String ownerId, List<User> members, String id, List<Channel> channels) {
+    public Server(String name, String ownerId, List<User> members, List<Channel> channels, String avatarIcon) {
         this.name = name;
         this.ownerId = ownerId;
         this.members = members;
-        this.id = id;
         this.channels = channels;
+        this.avatarIconUrl = avatarIcon;
+    }
+
+    public String getAvatarIconUrl() {
+        return avatarIconUrl;
+    }
+
+    public void setAvatarIconUrl(String avatarIconUrl) {
+        this.avatarIconUrl = avatarIconUrl;
     }
 
     public List<Channel> getChannels() {
@@ -36,12 +45,12 @@ public class Server {
         this.channels = channels;
     }
 
-    public String getId() {
-        return id;
+    public String get_id() {
+        return _id;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void set_id(String _id) {
+        this._id = _id;
     }
 
     public String getName() {

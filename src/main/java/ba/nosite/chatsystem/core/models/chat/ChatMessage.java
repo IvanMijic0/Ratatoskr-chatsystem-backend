@@ -12,9 +12,11 @@ public class ChatMessage {
     private String receiverName;
     private Date date;
     private MessageType type;
+
     public ChatMessage() {
         // Default constructor
     }
+
     public ChatMessage(String senderName, String content, String receiverName, Date date, MessageType type) {
         this.senderName = senderName;
         this.content = content;
@@ -84,6 +86,4 @@ public class ChatMessage {
     public void setType(MessageType type) {
         this.type = type;
     }
-
-
 }

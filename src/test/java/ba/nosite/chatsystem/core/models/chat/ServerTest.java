@@ -19,21 +19,21 @@ public class ServerTest {
         String serverId = "server123";
         List<Channel> channels = new ArrayList<>();
 
-        Server server = new Server(serverName, ownerId, members, serverId, channels);
+        Server server = new Server(serverName, ownerId, members, channels, "");
 
         assertEquals(serverName, server.getName());
         assertEquals(ownerId, server.getOwnerId());
         assertEquals(members, server.getMembers());
-        assertEquals(serverId, server.getId());
+        assertEquals(serverId, server.get_id());
         assertEquals(channels, server.getChannels());
     }
 
     @Test
     void shouldSetAndGetChannels() {
-        Server server = new Server("MyServer", "owner123", new ArrayList<>(), "server123", new ArrayList<>());
+        Server server = new Server("MyServer", "owner123", new ArrayList<>(), new ArrayList<>(), "");
 
         List<Channel> newChannels = new ArrayList<>();
-        newChannels.add(new Channel("channel123", "General", "server123", new ArrayList<>()));
+        newChannels.add(new Channel("General", new ArrayList<>()));
         server.setChannels(newChannels);
 
         assertEquals(newChannels, server.getChannels());
@@ -41,17 +41,17 @@ public class ServerTest {
 
     @Test
     void shouldSetAndGetId() {
-        Server server = new Server("MyServer", "owner123", new ArrayList<>(), "server123", new ArrayList<>());
+        Server server = new Server("MyServer", "owner123", new ArrayList<>(), new ArrayList<>(), "");
 
         String newId = "newServerId";
-        server.setId(newId);
+        server.set_id(newId);
 
-        assertEquals(newId, server.getId());
+        assertEquals(newId, server.get_id());
     }
 
     @Test
     void shouldSetAndGetName() {
-        Server server = new Server("MyServer", "owner123", new ArrayList<>(), "server123", new ArrayList<>());
+        Server server = new Server("MyServer", "owner123", new ArrayList<>(), new ArrayList<>(), "");
 
         String newName = "NewServerName";
         server.setName(newName);
@@ -61,7 +61,7 @@ public class ServerTest {
 
     @Test
     void shouldSetAndGetOwnerId() {
-        Server server = new Server("MyServer", "owner123", new ArrayList<>(), "server123", new ArrayList<>());
+        Server server = new Server("MyServer", "owner123", new ArrayList<>(), new ArrayList<>(), "");
 
         String newOwnerId = "newOwner123";
         server.setOwnerId(newOwnerId);
@@ -71,7 +71,7 @@ public class ServerTest {
 
     @Test
     void shouldSetAndGetMembers() {
-        Server server = new Server("MyServer", "owner123", new ArrayList<>(), "server123", new ArrayList<>());
+        Server server = new Server("MyServer", "owner123", new ArrayList<>(), new ArrayList<>(), "");
 
         List<User> newMembers = new ArrayList<>();
         newMembers.add(new User(

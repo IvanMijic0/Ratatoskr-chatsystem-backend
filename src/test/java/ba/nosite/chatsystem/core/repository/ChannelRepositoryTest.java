@@ -18,34 +18,34 @@ public class ChannelRepositoryTest {
 
     @Test
     public void shouldSaveChannel() {
-        Channel channel = new Channel("channel123", "General", "server123", new ArrayList<>());
+        Channel channel = new Channel("General", new ArrayList<>());
         channelRepository.save(channel);
 
-        Optional<Channel> savedChannel = channelRepository.findById(channel.getId());
+        Optional<Channel> savedChannel = channelRepository.findById(channel.get_id());
         Assertions.assertTrue(savedChannel.isPresent());
         Assertions.assertEquals("General", savedChannel.get().getName());
     }
 
     @Test
     public void shouldDeleteChannel() {
-        Channel channel = new Channel("channelToDelete", "ToDelete", "server123", new ArrayList<>());
+        Channel channel = new Channel("ToDelete", new ArrayList<>());
         channelRepository.save(channel);
 
-        channelRepository.deleteById(channel.getId());
+        channelRepository.deleteById(channel.get_id());
 
-        Optional<Channel> deletedChannel = channelRepository.findById(channel.getId());
+        Optional<Channel> deletedChannel = channelRepository.findById(channel.get_id());
         Assertions.assertFalse(deletedChannel.isPresent());
     }
 
     @Test
     public void shouldUpdateChannel() {
-        Channel channel = new Channel("channelToUpdate", "ToUpdate", "server123", new ArrayList<>());
+        Channel channel = new Channel("channelToUpdate", new ArrayList<>());
         channelRepository.save(channel);
 
         channel.setName("UpdatedChannel");
         channelRepository.save(channel);
 
-        Optional<Channel> updatedChannel = channelRepository.findById(channel.getId());
+        Optional<Channel> updatedChannel = channelRepository.findById(channel.get_id());
         Assertions.assertTrue(updatedChannel.isPresent());
         Assertions.assertEquals("UpdatedChannel", updatedChannel.get().getName());
     }
@@ -58,10 +58,10 @@ public class ChannelRepositoryTest {
 
     @Test
     public void shouldFindChannelById() {
-        Channel channel = new Channel("channelById", "ById", "server123", new ArrayList<>());
+        Channel channel = new Channel("channelById", new ArrayList<>());
         channelRepository.save(channel);
 
-        Optional<Channel> foundChannel = channelRepository.findById(channel.getId());
+        Optional<Channel> foundChannel = channelRepository.findById(channel.get_id());
         Assertions.assertTrue(foundChannel.isPresent());
         Assertions.assertEquals("ById", foundChannel.get().getName());
     }

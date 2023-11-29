@@ -103,7 +103,7 @@ public class UserService implements UserDetailsService {
         }
     }
 
-    public UserResponseWithoutId getUserById(String authHeader) {
+    public UserResponseWithoutId getUserByAuthHeader(String authHeader) {
         String jwt = extractJwtFromHeader(authHeader);
         String username = jwtService.extractUsername(jwt);
 
@@ -112,6 +112,16 @@ public class UserService implements UserDetailsService {
         if (potentialUser.isPresent()) {
             User user = potentialUser.get();
             return new UserResponseWithoutId(user);
+        } else {
+            throw new UserNotFoundException("User not found");
+        }
+    }
+
+    public User getUserById(String userId) {
+        Optional<User> potentialUser = userRepository.findById(userId);
+
+        if (potentialUser.isPresent()) {
+            return potentialUser.get();
         } else {
             throw new UserNotFoundException("User not found");
         }

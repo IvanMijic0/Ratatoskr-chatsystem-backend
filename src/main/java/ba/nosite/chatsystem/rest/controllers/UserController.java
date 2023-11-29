@@ -63,7 +63,7 @@ public class UserController {
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<?> getUserById(@RequestHeader("Authorization") String authHeader) {
         try {
-            return ResponseEntity.ok(userService.getUserById(authHeader));
+            return ResponseEntity.ok(userService.getUserByAuthHeader(authHeader));
         } catch (UserNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }

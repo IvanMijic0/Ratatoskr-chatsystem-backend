@@ -1,8 +1,25 @@
 package ba.nosite.chatsystem.core.services;
 
+import ba.nosite.chatsystem.core.models.chat.Channel;
+import ba.nosite.chatsystem.core.repository.ChannelRepository;
 import org.springframework.stereotype.Service;
 
-// TODO need to figure this one out, when I get better at WebRTC
+import java.util.List;
+
 @Service
 public class ChannelService {
+    private final ChannelRepository channelRepository;
+
+    public ChannelService(ChannelRepository channelRepository) {
+        this.channelRepository = channelRepository;
+    }
+
+    public Channel saveChannel(Channel channel) {
+        return channelRepository.save(channel);
+    }
+
+    public List<Channel> getAllChannels() {
+        return channelRepository.findAll();
+    }
+
 }
