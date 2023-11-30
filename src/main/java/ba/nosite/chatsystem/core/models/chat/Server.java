@@ -21,16 +21,16 @@ public class Server {
     private List<Channel> channels;
     private String avatarIconUrl;
 
-    public Server(String name, String ownerId, List<User> members, List<Channel> channels, String avatarIcon) {
+    public Server(String name, String ownerId, List<User> members, List<Channel> channels, String avatarIconUrl) {
         this.name = name;
         this.ownerId = ownerId;
         this.members = members;
         this.channels = channels;
-        this.avatarIconUrl = avatarIcon;
+        this.avatarIconUrl = avatarIconUrl;
     }
 
     public String getAvatarIconUrl() {
-        return avatarIconUrl;
+        return this.avatarIconUrl;
     }
 
     public void setAvatarIconUrl(String avatarIconUrl) {
