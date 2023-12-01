@@ -5,6 +5,7 @@ import ba.nosite.chatsystem.core.models.user.User;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -19,7 +20,7 @@ public class ServerTest {
         String serverId = "server123";
         List<Channel> channels = new ArrayList<>();
 
-        Server server = new Server(serverName, ownerId, members, channels, "");
+        Server server = new Server(serverName, ownerId, members, channels, "", new Date(System.currentTimeMillis()));
 
         assertEquals(serverName, server.getName());
         assertEquals(ownerId, server.getOwnerId());
@@ -30,7 +31,7 @@ public class ServerTest {
 
     @Test
     void shouldSetAndGetChannels() {
-        Server server = new Server("MyServer", "owner123", new ArrayList<>(), new ArrayList<>(), "");
+        Server server = new Server("MyServer", "owner123", new ArrayList<>(), new ArrayList<>(), "", new Date(System.currentTimeMillis()));
 
         List<Channel> newChannels = new ArrayList<>();
         newChannels.add(new Channel("General", new ArrayList<>()));
@@ -41,7 +42,7 @@ public class ServerTest {
 
     @Test
     void shouldSetAndGetId() {
-        Server server = new Server("MyServer", "owner123", new ArrayList<>(), new ArrayList<>(), "");
+        Server server = new Server("MyServer", "owner123", new ArrayList<>(), new ArrayList<>(), "", new Date(System.currentTimeMillis()));
 
         String newId = "newServerId";
         server.set_id(newId);
@@ -51,7 +52,7 @@ public class ServerTest {
 
     @Test
     void shouldSetAndGetName() {
-        Server server = new Server("MyServer", "owner123", new ArrayList<>(), new ArrayList<>(), "");
+        Server server = new Server("MyServer", "owner123", new ArrayList<>(), new ArrayList<>(), "", new Date(System.currentTimeMillis()));
 
         String newName = "NewServerName";
         server.setName(newName);
@@ -61,7 +62,7 @@ public class ServerTest {
 
     @Test
     void shouldSetAndGetOwnerId() {
-        Server server = new Server("MyServer", "owner123", new ArrayList<>(), new ArrayList<>(), "");
+        Server server = new Server("MyServer", "owner123", new ArrayList<>(), new ArrayList<>(), "", new Date(System.currentTimeMillis()));
 
         String newOwnerId = "newOwner123";
         server.setOwnerId(newOwnerId);
@@ -71,7 +72,7 @@ public class ServerTest {
 
     @Test
     void shouldSetAndGetMembers() {
-        Server server = new Server("MyServer", "owner123", new ArrayList<>(), new ArrayList<>(), "");
+        Server server = new Server("MyServer", "owner123", new ArrayList<>(), new ArrayList<>(), "", new Date(System.currentTimeMillis()));
 
         List<User> newMembers = new ArrayList<>();
         newMembers.add(new User(

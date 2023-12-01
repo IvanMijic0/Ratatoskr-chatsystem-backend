@@ -6,6 +6,7 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.Date;
 import java.util.List;
 
 @Document(collection = "server")
@@ -20,13 +21,25 @@ public class Server {
     @DBRef(lazy = true)
     private List<Channel> channels;
     private String avatarIconUrl;
+    private Date avatarIconUrlExpirationTime;
 
-    public Server(String name, String ownerId, List<User> members, List<Channel> channels, String avatarIconUrl) {
+
+    public Server(String name, String ownerId, List<User> members, List<Channel> channels, String avatarIconUrl, Date avatarIconUrlExpirationTime) {
         this.name = name;
         this.ownerId = ownerId;
         this.members = members;
         this.channels = channels;
         this.avatarIconUrl = avatarIconUrl;
+        this.avatarIconUrlExpirationTime = avatarIconUrlExpirationTime;
+
+    }
+
+    public Date getAvatarIconUrlExpirationTime() {
+        return avatarIconUrlExpirationTime;
+    }
+
+    public void setAvatarIconUrlExpirationTime(Date avatarIconUrlExpirationTime) {
+        this.avatarIconUrlExpirationTime = avatarIconUrlExpirationTime;
     }
 
     public String getAvatarIconUrl() {

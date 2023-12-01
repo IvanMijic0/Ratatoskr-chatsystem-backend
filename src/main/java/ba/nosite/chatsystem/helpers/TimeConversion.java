@@ -1,7 +1,7 @@
 package ba.nosite.chatsystem.helpers;
 
 public class TimeConversion {
-    public static Long convertToMs(Long toConvert) {
+    public static Long convertHourToMs(Long toConvert) {
         if (toConvert != null) {
             return toConvert * 60 * 60 * 1000;
         } else {

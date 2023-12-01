@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,7 +19,7 @@ public class ServerRepositoryTest {
 
     @Test
     public void shouldSaveServer() {
-        Server server = new Server("MyServer", "owner123", new ArrayList<>(), new ArrayList<>(), "");
+        Server server = new Server("MyServer", "owner123", new ArrayList<>(), new ArrayList<>(), "", new Date(System.currentTimeMillis()));
         serverRepository.save(server);
 
         Optional<Server> savedServer = serverRepository.findById(server.get_id());
@@ -28,7 +29,7 @@ public class ServerRepositoryTest {
 
     @Test
     public void shouldDeleteServer() {
-        Server server = new Server("ServerToDelete", "owner123", new ArrayList<>(), new ArrayList<>(), "");
+        Server server = new Server("ServerToDelete", "owner123", new ArrayList<>(), new ArrayList<>(), "", new Date(System.currentTimeMillis()));
         serverRepository.save(server);
 
         serverRepository.deleteById(server.get_id());
@@ -39,7 +40,7 @@ public class ServerRepositoryTest {
 
     @Test
     public void shouldUpdateServer() {
-        Server server = new Server("ServerToUpdate", "owner123", new ArrayList<>(), new ArrayList<>(), "");
+        Server server = new Server("ServerToUpdate", "owner123", new ArrayList<>(), new ArrayList<>(), "", new Date(System.currentTimeMillis()));
         serverRepository.save(server);
 
         server.setName("UpdatedServer");
@@ -58,7 +59,7 @@ public class ServerRepositoryTest {
 
     @Test
     public void shouldFindServerById() {
-        Server server = new Server("ServerById", "owner123", new ArrayList<>(), new ArrayList<>(), "");
+        Server server = new Server("ServerById", "owner123", new ArrayList<>(), new ArrayList<>(), "", new Date(System.currentTimeMillis()));
         serverRepository.save(server);
 
         Optional<Server> foundServer = serverRepository.findById(server.get_id());

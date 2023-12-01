@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-import static ba.nosite.chatsystem.helpers.TimeConversion.convertToMs;
+import static ba.nosite.chatsystem.helpers.TimeConversion.convertHourToMs;
 
 @Service
 public class JwtService {
@@ -38,15 +38,15 @@ public class JwtService {
 
     public String generateTokenWithAdditionalClaims(Map<String, Object> customClaims, UserDetails userDetails) {
         long expirationHours = (jwtExpirationHours != null) ? jwtExpirationHours : 1L;
-        return generateToken(customClaims, userDetails, convertToMs(expirationHours));
+        return generateToken(customClaims, userDetails, convertHourToMs(expirationHours));
     }
 
     public String generateToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(), userDetails, convertToMs(jwtExpirationHours));
+        return generateToken(new HashMap<>(), userDetails, convertHourToMs(jwtExpirationHours));
     }
 
     public String generateRefreshToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(), userDetails, convertToMs(refreshJwtExpirationHours));
+        return generateToken(new HashMap<>(), userDetails, convertHourToMs(refreshJwtExpirationHours));
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
