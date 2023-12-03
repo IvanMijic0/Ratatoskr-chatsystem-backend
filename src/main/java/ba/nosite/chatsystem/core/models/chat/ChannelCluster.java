@@ -6,17 +6,18 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
 
-@Document(collection = "channel")
-public class Channel {
+@Document(collection = "channelCluster")
+public class ChannelCluster {
     @Id
     private String _id;
     private String name;
-    @DBRef(lazy = true)
-    private List<ChatMessage> messages;
 
-    public Channel(String name, List<ChatMessage> messages) {
+    @DBRef(lazy = true)
+    private List<Channel> channels;
+
+    public ChannelCluster(String name, List<Channel> channels) {
         this.name = name;
-        this.messages = messages;
+        this.channels = channels;
     }
 
     public String get_id() {
@@ -35,11 +36,11 @@ public class Channel {
         this.name = name;
     }
 
-    public List<ChatMessage> getMessages() {
-        return messages;
+    public List<Channel> getChannels() {
+        return channels;
     }
 
-    public void setMessages(List<ChatMessage> messages) {
-        this.messages = messages;
+    public void setChannels(List<Channel> channels) {
+        this.channels = channels;
     }
 }

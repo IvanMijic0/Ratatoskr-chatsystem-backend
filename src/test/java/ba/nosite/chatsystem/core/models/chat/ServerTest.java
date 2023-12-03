@@ -18,7 +18,7 @@ public class ServerTest {
         String ownerId = "owner123";
         List<User> members = new ArrayList<>();
         String serverId = "server123";
-        List<Channel> channels = new ArrayList<>();
+        List<ChannelCluster> channels = new ArrayList<>();
 
         Server server = new Server(serverName, ownerId, members, channels, "", new Date(System.currentTimeMillis()));
 
@@ -26,18 +26,18 @@ public class ServerTest {
         assertEquals(ownerId, server.getOwnerId());
         assertEquals(members, server.getMembers());
         assertEquals(serverId, server.get_id());
-        assertEquals(channels, server.getChannels());
+        assertEquals(channels, server.getChannelClusters());
     }
 
     @Test
     void shouldSetAndGetChannels() {
         Server server = new Server("MyServer", "owner123", new ArrayList<>(), new ArrayList<>(), "", new Date(System.currentTimeMillis()));
 
-        List<Channel> newChannels = new ArrayList<>();
-        newChannels.add(new Channel("General", new ArrayList<>()));
-        server.setChannels(newChannels);
+        List<ChannelCluster> newChannels = new ArrayList<>();
+        newChannels.add(new ChannelCluster("General", new ArrayList<>()));
+        server.setChannelClusters(newChannels);
 
-        assertEquals(newChannels, server.getChannels());
+        assertEquals(newChannels, server.getChannelClusters());
     }
 
     @Test

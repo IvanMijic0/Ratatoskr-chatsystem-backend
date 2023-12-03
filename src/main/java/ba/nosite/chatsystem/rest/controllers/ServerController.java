@@ -2,6 +2,7 @@ package ba.nosite.chatsystem.rest.controllers;
 
 import ba.nosite.chatsystem.core.dto.chatDtos.ServerInfoResponse;
 import ba.nosite.chatsystem.core.exceptions.auth.UserNotFoundException;
+import ba.nosite.chatsystem.core.models.chat.ChannelCluster;
 import ba.nosite.chatsystem.core.services.ServerService;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -47,6 +48,18 @@ public class ServerController {
             List<ServerInfoResponse> serverInfoResponse = serverService.findServerByMemberId(authHeader);
 
             return ResponseEntity.ok().body(serverInfoResponse);
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatusCode.valueOf(e.hashCode())).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/channelClusters")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<?> findChannelsByServerId(@RequestParam String serverId) {
+        try {
+            List<ChannelCluster> channelInfoResponse = serverService.findChannelsByServerId(serverId);
+
+            return ResponseEntity.ok().body(channelInfoResponse);
         } catch (UserNotFoundException e) {
             return ResponseEntity.status(HttpStatusCode.valueOf(e.hashCode())).body(e.getMessage());
         }

@@ -14,8 +14,8 @@ public class ChannelService {
         this.channelRepository = channelRepository;
     }
 
-    public Channel saveChannel(Channel channel) {
-        return channelRepository.save(channel);
+    public void saveChannel(Channel channel) {
+        channelRepository.save(channel);
     }
 
     public List<Channel> getAllChannels() {

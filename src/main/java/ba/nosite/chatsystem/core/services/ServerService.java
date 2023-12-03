@@ -1,10 +1,7 @@
 package ba.nosite.chatsystem.core.services;
 
 import ba.nosite.chatsystem.core.dto.chatDtos.ServerInfoResponse;
-import ba.nosite.chatsystem.core.models.chat.Channel;
-import ba.nosite.chatsystem.core.models.chat.ChatMessage;
-import ba.nosite.chatsystem.core.models.chat.MessageType;
-import ba.nosite.chatsystem.core.models.chat.Server;
+import ba.nosite.chatsystem.core.models.chat.*;
 import ba.nosite.chatsystem.core.models.user.User;
 import ba.nosite.chatsystem.core.repository.ServerRepository;
 import ba.nosite.chatsystem.core.services.authServices.JwtService;
@@ -33,6 +30,7 @@ public class ServerService {
     private final ServerRepository serverRepository;
     private final JwtService jwtService;
     private final UserService userService;
+    private final ChannelClusterService channelClusterService;
     private final ChannelService channelService;
     private final ChatMessageService chatMessageService;
     private final AmazonS3 s3Client;
@@ -44,10 +42,11 @@ public class ServerService {
     @Value("${aws.s3.expirationThresholdInMs}")
     private Long s3ImageExpirationThresholdInMs;
 
-    public ServerService(ServerRepository serverRepository, JwtService jwtService, UserService userService, ChannelService channelService, ChatMessageService chatMessageService, AmazonS3 s3Client) {
+    public ServerService(ServerRepository serverRepository, JwtService jwtService, UserService userService, ChannelClusterService channelClusterService, ChannelService channelService, ChatMessageService chatMessageService, AmazonS3 s3Client) {
         this.serverRepository = serverRepository;
         this.jwtService = jwtService;
         this.userService = userService;
+        this.channelClusterService = channelClusterService;
         this.channelService = channelService;
         this.chatMessageService = chatMessageService;
         this.s3Client = s3Client;
@@ -107,6 +106,11 @@ public class ServerService {
         }});
         channelService.saveChannel(channel);
 
+        ChannelCluster channelCluster = new ChannelCluster("Defaults", new ArrayList<>() {{
+            add(channel);
+        }});
+        channelClusterService.save(channelCluster);
+
         Server server = new Server(
                 serverName,
                 ownerId,
@@ -114,7 +118,7 @@ public class ServerService {
                     add(owner);
                 }},
                 new ArrayList<>() {{
-                    add(channel);
+                    add(channelCluster);
                 }},
                 fileUrl,
                 exp
@@ -154,6 +158,11 @@ public class ServerService {
                     .collect(Collectors.toList());
         }
         throw new NotFoundException("This user is not a member in any server!");
+    }
+
+    public List<ChannelCluster> findChannelsByServerId(String serverId) {
+        Optional<Server> serverOptional = serverRepository.findById(serverId);
+        return serverOptional.map(Server::getChannelClusters).orElse(Collections.emptyList());
     }
 
     private boolean isUrlExpired(String url) {

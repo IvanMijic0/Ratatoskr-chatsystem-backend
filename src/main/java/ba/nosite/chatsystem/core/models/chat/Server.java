@@ -19,16 +19,15 @@ public class Server {
     @DBRef(lazy = true)
     private List<User> members;
     @DBRef(lazy = true)
-    private List<Channel> channels;
+    private List<ChannelCluster> channelClusters;
     private String avatarIconUrl;
     private Date avatarIconUrlExpirationTime;
 
-
-    public Server(String name, String ownerId, List<User> members, List<Channel> channels, String avatarIconUrl, Date avatarIconUrlExpirationTime) {
+    public Server(String name, String ownerId, List<User> members, List<ChannelCluster> channelClusters, String avatarIconUrl, Date avatarIconUrlExpirationTime) {
         this.name = name;
         this.ownerId = ownerId;
         this.members = members;
-        this.channels = channels;
+        this.channelClusters = channelClusters;
         this.avatarIconUrl = avatarIconUrl;
         this.avatarIconUrlExpirationTime = avatarIconUrlExpirationTime;
 
@@ -50,12 +49,12 @@ public class Server {
         this.avatarIconUrl = avatarIconUrl;
     }
 
-    public List<Channel> getChannels() {
-        return channels;
+    public List<ChannelCluster> getChannelClusters() {
+        return channelClusters;
     }
 
-    public void setChannels(List<Channel> channels) {
-        this.channels = channels;
+    public void setChannelClusters(List<ChannelCluster> channelClusters) {
+        this.channelClusters = channelClusters;
     }
 
     public String get_id() {
