@@ -18,7 +18,6 @@ public class Server {
     private String ownerId;
     @DBRef(lazy = true)
     private List<User> members;
-    @DBRef(lazy = true)
     private List<ChannelCluster> channelClusters;
     private String avatarIconUrl;
     private Date avatarIconUrlExpirationTime;

@@ -64,4 +64,33 @@ public class ServerController {
             return ResponseEntity.status(HttpStatusCode.valueOf(e.hashCode())).body(e.getMessage());
         }
     }
+
+    @PostMapping("/channelCluster")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<?> addChannelClusterToServer(
+            @RequestParam String serverId,
+            @RequestParam String channelClusterName
+    ) {
+        try {
+            serverService.addChannelClusterToServer(serverId, channelClusterName);
+            return ResponseEntity.ok("Successfully added channel cluster to server");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatusCode.valueOf(e.hashCode())).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/channel")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<?> addChannelToCluster(
+            @RequestParam String serverId,
+            @RequestParam String channelClusterId,
+            @RequestParam String channelName
+    ) {
+        try {
+            serverService.addChannelToCluster(serverId, channelClusterId, channelName);
+            return ResponseEntity.ok("Successfully added channel to cluster");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatusCode.valueOf(e.hashCode())).body(e.getMessage());
+        }
+    }
 }

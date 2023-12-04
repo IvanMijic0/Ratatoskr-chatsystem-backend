@@ -12,6 +12,8 @@ import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import org.bson.types.ObjectId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,11 +32,9 @@ public class ServerService {
     private final ServerRepository serverRepository;
     private final JwtService jwtService;
     private final UserService userService;
-    private final ChannelClusterService channelClusterService;
-    private final ChannelService channelService;
-    private final ChatMessageService chatMessageService;
     private final AmazonS3 s3Client;
     private final Map<String, Long> avatarIconUrlCreationTimes;
+    Logger logger = LoggerFactory.getLogger(ServerService.class);
     @Value("${aws.s3.expirationHours}")
     private Long s3ImageExpirationHours;
     @Value("${aws.s3.bucket}")
@@ -42,13 +42,10 @@ public class ServerService {
     @Value("${aws.s3.expirationThresholdInMs}")
     private Long s3ImageExpirationThresholdInMs;
 
-    public ServerService(ServerRepository serverRepository, JwtService jwtService, UserService userService, ChannelClusterService channelClusterService, ChannelService channelService, ChatMessageService chatMessageService, AmazonS3 s3Client) {
+    public ServerService(ServerRepository serverRepository, JwtService jwtService, UserService userService, AmazonS3 s3Client) {
         this.serverRepository = serverRepository;
         this.jwtService = jwtService;
         this.userService = userService;
-        this.channelClusterService = channelClusterService;
-        this.channelService = channelService;
-        this.chatMessageService = chatMessageService;
         this.s3Client = s3Client;
         avatarIconUrlCreationTimes = new HashMap<>();
     }
@@ -61,23 +58,17 @@ public class ServerService {
         for (Server server : servers) {
             Date expirationTime = server.getAvatarIconUrlExpirationTime();
 
+
             if (expirationTime != null && expirationTime.getTime() > currentTime) {
                 avatarIconUrlCreationTimes.put(server.getAvatarIconUrl(), expirationTime.getTime());
             }
         }
     }
 
-
-//    public String generateHash(MultipartFile file) throws IOException, NoSuchAlgorithmException {
-//        MessageDigest md = MessageDigest.getInstance("SHA-256");
-//        byte[] hashInBytes = md.digest(file.getBytes());
-//
-//        StringBuilder hashStringBuilder = new StringBuilder();
-//        for (byte b : hashInBytes) {
-//            hashStringBuilder.append(String.format("%02x", b));
-//        }
-//        return hashStringBuilder.toString();
-//    }
+    public List<ChannelCluster> findChannelsByServerId(String serverId) {
+        Optional<Server> serverOptional = serverRepository.findById(serverId);
+        return serverOptional.map(Server::getChannelClusters).orElse(Collections.emptyList());
+    }
 
     public void saveServer(String serverName, String authHeader, MultipartFile file) throws IOException, NoSuchAlgorithmException {
         String fileName = UUID
@@ -86,7 +77,12 @@ public class ServerService {
                 .concat("-")
                 .concat(Objects.requireNonNull(file.getOriginalFilename()));
 
-        s3Client.putObject(new PutObjectRequest(bucketName, fileName, file.getInputStream(), new ObjectMetadata()));
+        long contentLength = file.getSize();
+
+        ObjectMetadata metadata = new ObjectMetadata();
+        metadata.setContentLength(contentLength);
+
+        s3Client.putObject(new PutObjectRequest(bucketName, fileName, file.getInputStream(), metadata));
 
         Date exp = generateExpirationTime();
 
@@ -99,27 +95,16 @@ public class ServerService {
                 "Hello new User!",
                 "Ratatoskr",
                 MessageType.MESSAGE);
-        chatMessageService.saveChatMessage(chatMessage);
 
-        Channel channel = new Channel("General", new ArrayList<>() {{
-            add(chatMessage);
-        }});
-        channelService.saveChannel(channel);
+        Channel channel = new Channel("General", new ArrayList<>(List.of(chatMessage)));
 
-        ChannelCluster channelCluster = new ChannelCluster("Defaults", new ArrayList<>() {{
-            add(channel);
-        }});
-        channelClusterService.save(channelCluster);
+        ChannelCluster channelCluster = new ChannelCluster("Defaults", new ArrayList<>(List.of(channel)));
 
         Server server = new Server(
                 serverName,
                 ownerId,
-                new ArrayList<>() {{
-                    add(owner);
-                }},
-                new ArrayList<>() {{
-                    add(channelCluster);
-                }},
+                new ArrayList<>(List.of(owner)),
+                new ArrayList<>(List.of(channelCluster)),
                 fileUrl,
                 exp
         );
@@ -160,14 +145,55 @@ public class ServerService {
         throw new NotFoundException("This user is not a member in any server!");
     }
 
-    public List<ChannelCluster> findChannelsByServerId(String serverId) {
+    public void addChannelClusterToServer(String serverId, String channelClusterName) {
         Optional<Server> serverOptional = serverRepository.findById(serverId);
-        return serverOptional.map(Server::getChannelClusters).orElse(Collections.emptyList());
+        serverOptional.ifPresent(server -> {
+            List<ChannelCluster> channelClusters = server.getChannelClusters();
+
+            ChatMessage defaultChatMessage = new ChatMessage("Greetings, User!", "Ratatoskr", MessageType.MESSAGE);
+            Channel defaultChannel = new Channel("General", new ArrayList<>(List.of(defaultChatMessage)));
+            ChannelCluster channelCluster = new ChannelCluster(channelClusterName, new ArrayList<>(List.of(defaultChannel)));
+
+            channelClusters.add(channelCluster);
+            server.setChannelClusters(channelClusters);
+            serverRepository.save(server);
+        });
     }
 
+    public void addChannelToCluster(String serverId, String clusterId, String channelName) {
+        serverRepository.findById(serverId).ifPresent(server -> {
+            List<ChannelCluster> channelClusters = server.getChannelClusters();
+            ChatMessage defaultChatMessage = new ChatMessage("Greetings, User!", "Ratatoskr", MessageType.MESSAGE);
+            Channel defaultChannel = new Channel(channelName, new ArrayList<>(List.of(defaultChatMessage)));
+
+            for (ChannelCluster cluster : channelClusters) {
+                if (cluster.get_id().equals(clusterId)) {
+                    List<Channel> channels = cluster.getChannels();
+                    channels.add(defaultChannel);
+                    cluster.setChannels(channels);
+                    break;
+                }
+            }
+            serverRepository.save(server);
+        });
+    }
+
+
     private boolean isUrlExpired(String url) {
-        return avatarIconUrlCreationTimes.containsKey(url) &&
-                (System.currentTimeMillis() - avatarIconUrlCreationTimes.get(url) >= s3ImageExpirationThresholdInMs);
+        if (avatarIconUrlCreationTimes.isEmpty()) {
+            return false;
+        }
+
+        Long creationTime = avatarIconUrlCreationTimes.get(url);
+
+        if (creationTime != null) {
+            return System.currentTimeMillis() - creationTime >= s3ImageExpirationThresholdInMs;
+        } else {
+            logger.info("URL not found in the map: ".concat(url));
+
+            avatarIconUrlCreationTimes.put(url, System.currentTimeMillis());
+            return false;
+        }
     }
 
     private String extractFileNameFromUrl(String url) {

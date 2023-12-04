@@ -1,20 +1,18 @@
 package ba.nosite.chatsystem.core.models.chat;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
+import java.util.UUID;
 
 @Document(collection = "channel")
 public class Channel {
-    @Id
     private String _id;
     private String name;
-    @DBRef(lazy = true)
     private List<ChatMessage> messages;
 
     public Channel(String name, List<ChatMessage> messages) {
+        this._id = UUID.randomUUID().toString();
         this.name = name;
         this.messages = messages;
     }
