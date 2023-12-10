@@ -1,5 +1,7 @@
 package ba.nosite.chatsystem.core.services;
 
+import ba.nosite.chatsystem.core.dto.chatDtos.ChannelClusterInfo;
+import ba.nosite.chatsystem.core.dto.chatDtos.ChannelInfo;
 import ba.nosite.chatsystem.core.dto.chatDtos.ServerInfoResponse;
 import ba.nosite.chatsystem.core.models.chat.*;
 import ba.nosite.chatsystem.core.models.user.User;
@@ -58,17 +60,44 @@ public class ServerService {
         for (Server server : servers) {
             Date expirationTime = server.getAvatarIconUrlExpirationTime();
 
-
-            if (expirationTime != null && expirationTime.getTime() > currentTime) {
+            if (expirationTime != null && expirationTime.getTime() < currentTime) {
                 avatarIconUrlCreationTimes.put(server.getAvatarIconUrl(), expirationTime.getTime());
             }
         }
     }
 
-    public List<ChannelCluster> findChannelsByServerId(String serverId) {
+    public List<ChannelClusterInfo> findChannelClustersByServerId(String serverId) {
         Optional<Server> serverOptional = serverRepository.findById(serverId);
-        return serverOptional.map(Server::getChannelClusters).orElse(Collections.emptyList());
+
+        return serverOptional.map(server ->
+                        server.getChannelClusters().stream()
+                                .map(channelCluster -> new ChannelClusterInfo(
+                                        channelCluster.get_id(),
+                                        channelCluster.getName(),
+                                        getChannelInfosWithoutChatMessages(channelCluster.getChannels())
+                                ))
+                                .collect(Collectors.toList()))
+                .orElse(Collections.emptyList());
     }
+
+    public Channel getChannelByIds(String serverId, String channelClusterId, String channelId) {
+        Optional<Server> serverOptional = serverRepository.findById(serverId);
+
+        return serverOptional.flatMap(server -> {
+            Optional<ChannelCluster> channelClusterOptional = server.getChannelClusters()
+                    .stream()
+                    .filter(channelCluster -> channelCluster.get_id().equals(channelClusterId))
+                    .findFirst();
+
+
+            return channelClusterOptional.map(channelCluster -> channelCluster.getChannels()
+                    .stream()
+                    .filter(channel -> channel.get_id().equals(channelId))
+                    .findFirst()
+                    .orElseThrow(() -> new NotFoundException("Channel not found with ID: " + channelId)));
+        }).orElseThrow(() -> new NotFoundException("Server not found with ID: " + serverId));
+    }
+
 
     public void saveServer(String serverName, String authHeader, MultipartFile file) throws IOException, NoSuchAlgorithmException {
         String fileName = UUID
@@ -125,6 +154,7 @@ public class ServerService {
                         String avatarIconUrl = server.getAvatarIconUrl();
 
                         if (isUrlExpired(avatarIconUrl)) {
+                            logger.info("Refreshing avatar icon url for - ".concat(avatarIconUrl));
                             String fileName = extractFileNameFromUrl(avatarIconUrl);
                             avatarIconUrl = generatePreSignedUrl(newExpirationTime, fileName);
                             server.setAvatarIconUrl(avatarIconUrl);
@@ -178,16 +208,42 @@ public class ServerService {
         });
     }
 
+    public void deleteChannelsInCluster(String serverId, String clusterId, String[] channelIds) {
+        Set<String> channelIdSet = new HashSet<>(Arrays.asList(channelIds));
+
+        Server server = serverRepository.findById(serverId)
+                .orElseThrow(() -> new NotFoundException("Server not found with ID: " + serverId));
+
+        server.getChannelClusters().forEach(cluster -> {
+            if (cluster.get_id().equals(clusterId)) {
+                List<Channel> channels = cluster.getChannels();
+
+                channels = channels.stream()
+                        .filter(channel -> !channelIdSet.contains(channel.get_id()))
+                        .collect(Collectors.toList());
+
+                cluster.setChannels(channels);
+            }
+        });
+        serverRepository.save(server);
+    }
+
+
+    private List<ChannelInfo> getChannelInfosWithoutChatMessages(List<Channel> channels) {
+        return channels.stream()
+                .map(channel -> new ChannelInfo(channel.get_id(), channel.getName()))
+                .collect(Collectors.toList());
+    }
 
     private boolean isUrlExpired(String url) {
         if (avatarIconUrlCreationTimes.isEmpty()) {
             return false;
         }
-
         Long creationTime = avatarIconUrlCreationTimes.get(url);
 
+
         if (creationTime != null) {
-            return System.currentTimeMillis() - creationTime >= s3ImageExpirationThresholdInMs;
+            return System.currentTimeMillis() - creationTime > s3ImageExpirationThresholdInMs;
         } else {
             logger.info("URL not found in the map: ".concat(url));
 

@@ -1,9 +1,12 @@
 package ba.nosite.chatsystem.rest.controllers;
 
+import ba.nosite.chatsystem.core.dto.chatDtos.ChannelClusterInfo;
 import ba.nosite.chatsystem.core.dto.chatDtos.ServerInfoResponse;
 import ba.nosite.chatsystem.core.exceptions.auth.UserNotFoundException;
-import ba.nosite.chatsystem.core.models.chat.ChannelCluster;
+import ba.nosite.chatsystem.core.models.chat.Channel;
 import ba.nosite.chatsystem.core.services.ServerService;
+import com.amazonaws.services.kms.model.NotFoundException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -49,7 +52,7 @@ public class ServerController {
 
             return ResponseEntity.ok().body(serverInfoResponse);
         } catch (UserNotFoundException e) {
-            return ResponseEntity.status(HttpStatusCode.valueOf(e.hashCode())).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 
@@ -57,11 +60,11 @@ public class ServerController {
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<?> findChannelsByServerId(@RequestParam String serverId) {
         try {
-            List<ChannelCluster> channelInfoResponse = serverService.findChannelsByServerId(serverId);
+            List<ChannelClusterInfo> channelInfoResponse = serverService.findChannelClustersByServerId(serverId);
 
             return ResponseEntity.ok().body(channelInfoResponse);
         } catch (UserNotFoundException e) {
-            return ResponseEntity.status(HttpStatusCode.valueOf(e.hashCode())).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 
@@ -75,7 +78,7 @@ public class ServerController {
             serverService.addChannelClusterToServer(serverId, channelClusterName);
             return ResponseEntity.ok("Successfully added channel cluster to server");
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatusCode.valueOf(e.hashCode())).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 
@@ -90,7 +93,33 @@ public class ServerController {
             serverService.addChannelToCluster(serverId, channelClusterId, channelName);
             return ResponseEntity.ok("Successfully added channel to cluster");
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatusCode.valueOf(e.hashCode())).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
+    }
+
+    @GetMapping("/channel")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<?> getChannelByIds(
+            @RequestParam String serverId,
+            @RequestParam String channelClusterId,
+            @RequestParam String channelId
+    ) {
+        try {
+            Channel channelInfoResponse = serverService.getChannelByIds(serverId, channelClusterId, channelId);
+
+            return ResponseEntity.ok().body(channelInfoResponse);
+        } catch (UserNotFoundException | NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{serverId}/channelCluster/{clusterId}/channels")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public void deleteChannelsInCluster(
+            @PathVariable String serverId,
+            @PathVariable String clusterId,
+            @RequestBody String[] channelIds
+    ) {
+        serverService.deleteChannelsInCluster(serverId, clusterId, channelIds);
     }
 }

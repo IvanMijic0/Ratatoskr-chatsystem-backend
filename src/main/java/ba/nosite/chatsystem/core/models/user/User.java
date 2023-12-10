@@ -39,6 +39,8 @@ public class User implements UserDetails {
     private Boolean enabled;
     @DBRef(lazy = true)
     private List<Server> servers;
+    @DBRef(lazy = true)
+    private List<User> friends;
 
     public User() {
     }
@@ -57,6 +59,14 @@ public class User implements UserDetails {
         this.email = email;
         this.password = password;
         this.role = role;
+    }
+
+    public List<User> getFriends() {
+        return friends;
+    }
+
+    public void setFriends(List<User> friends) {
+        this.friends = friends;
     }
 
     public List<Server> getServers() {
