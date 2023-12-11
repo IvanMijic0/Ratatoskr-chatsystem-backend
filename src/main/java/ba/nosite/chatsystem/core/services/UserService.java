@@ -143,14 +143,16 @@ public class UserService implements UserDetailsService {
         return user.orElse(null);
     }
 
-    public List<Friend> getFriends(String userId) {
+    public List<Friend> getFriends(String authHeader) {
+        String userId = extractUserIdFromHeader(authHeader);
         Optional<User> userOptional = userRepository.findById(userId);
         User user = userOptional.orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
 
         return user.getFriends();
     }
 
-    public UsersResponse addFriend(String userId, String friendId) {
+    public UsersResponse addFriend(String authHeader, String friendId) {
+        String userId = extractUserIdFromHeader(authHeader);
         Optional<User> userOptional = userRepository.findById(userId);
         Optional<User> friendOptional = userRepository.findById(friendId);
 
@@ -179,7 +181,8 @@ public class UserService implements UserDetailsService {
         }
     }
 
-    public UsersResponse deleteFriend(String userId, String friendId) {
+    public UsersResponse deleteFriend(String authHeader, String friendId) {
+        String userId = extractUserIdFromHeader(authHeader);
         Optional<User> userOptional = userRepository.findById(userId);
 
         if (userOptional.isPresent()) {
@@ -195,5 +198,10 @@ public class UserService implements UserDetailsService {
         } else {
             throw new UserNotFoundException("User not found with ID: " + userId);
         }
+    }
+
+    private String extractUserIdFromHeader(String authHeader) {
+        String jwt = extractJwtFromHeader(authHeader);
+        return jwtService.extractCustomClaim(jwt, "user_id");
     }
 }

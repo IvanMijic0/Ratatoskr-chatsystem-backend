@@ -157,7 +157,7 @@ public class ServerService {
 
                         if (isUrlExpired(avatarIconUrl)) {
                             logger.info("Refreshing avatar icon url for - ".concat(avatarIconUrl));
-                            String fileName = extractFileNameFromUrl(avatarIconUrl);
+                            String fileName = "server_images/".concat(Objects.requireNonNull(extractFileNameFromUrl(avatarIconUrl)));
                             avatarIconUrl = generatePreSignedUrl(newExpirationTime, fileName);
                             server.setAvatarIconUrl(avatarIconUrl);
                             server.setAvatarIconUrlExpirationTime(newExpirationTime);
@@ -292,7 +292,6 @@ public class ServerService {
             return false;
         }
         Long creationTime = avatarIconUrlCreationTimes.get(url);
-
 
         if (creationTime != null) {
             return System.currentTimeMillis() - creationTime > s3ImageExpirationThresholdInMs;

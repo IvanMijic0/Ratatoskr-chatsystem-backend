@@ -78,22 +78,22 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found in database.");
     }
 
-    @GetMapping("/{userId}/friends")
+    @GetMapping("/friends")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<List<Friend>> getFriends(@PathVariable String userId) {
+    public ResponseEntity<List<Friend>> getFriends(@RequestHeader String authHeader) {
         try {
-            List<Friend> friends = userService.getFriends(userId);
+            List<Friend> friends = userService.getFriends(authHeader);
             return ResponseEntity.ok(friends);
         } catch (UserNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }
 
-    @PostMapping("/{userId}/add-friend/{friendId}")
+    @PostMapping("/add-friend/{friendId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<UsersResponse> addFriend(@PathVariable String userId, @PathVariable String friendId) {
+    public ResponseEntity<UsersResponse> addFriend(@RequestHeader String authHeader, @PathVariable String friendId) {
         try {
-            UsersResponse response = userService.addFriend(userId, friendId);
+            UsersResponse response = userService.addFriend(authHeader, friendId);
             return ResponseEntity.ok(response);
         } catch (UserNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
@@ -102,11 +102,11 @@ public class UserController {
         }
     }
 
-    @PostMapping("/{userId}/delete-friend/{friendId}")
+    @PostMapping("/delete-friend/{friendId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<UsersResponse> deleteFriend(@PathVariable String userId, @PathVariable String friendId) {
+    public ResponseEntity<UsersResponse> deleteFriend(@RequestHeader String authHeader, @PathVariable String friendId) {
         try {
-            UsersResponse response = userService.deleteFriend(userId, friendId);
+            UsersResponse response = userService.deleteFriend(authHeader, friendId);
             return ResponseEntity.ok(response);
         } catch (UserNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
