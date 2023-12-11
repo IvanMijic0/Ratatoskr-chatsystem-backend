@@ -63,8 +63,7 @@ public class AuthService {
 
     public void registerWithGoogle(GoogleRegisterRequest request) throws UserAlreadyExistsException {
         User user = new User(
-                request
-                        .firstName()
+                request.firstName()
                         .concat(request.lastName())
                         .concat("#")
                         .concat(UUID.randomUUID().toString().substring(0, 8)),

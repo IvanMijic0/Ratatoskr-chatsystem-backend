@@ -40,7 +40,7 @@ public class User implements UserDetails {
     @DBRef(lazy = true)
     private List<Server> servers;
     @DBRef(lazy = true)
-    private List<User> friends;
+    private List<Friend> friends;
 
     public User() {
     }
@@ -61,11 +61,11 @@ public class User implements UserDetails {
         this.role = role;
     }
 
-    public List<User> getFriends() {
+    public List<Friend> getFriends() {
         return friends;
     }
 
-    public void setFriends(List<User> friends) {
+    public void setFriends(List<Friend> friends) {
         this.friends = friends;
     }
 

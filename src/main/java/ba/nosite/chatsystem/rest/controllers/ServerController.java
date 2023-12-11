@@ -6,6 +6,7 @@ import ba.nosite.chatsystem.core.exceptions.auth.UserNotFoundException;
 import ba.nosite.chatsystem.core.models.chat.Channel;
 import ba.nosite.chatsystem.core.services.ServerService;
 import com.amazonaws.services.kms.model.NotFoundException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -122,4 +123,32 @@ public class ServerController {
     ) {
         serverService.deleteChannelsInCluster(serverId, clusterId, channelIds);
     }
+
+    @DeleteMapping("/{serverId}/channelCluster/{clusterId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<?> deleteChannelCluster(
+            @PathVariable String serverId,
+            @PathVariable String clusterId
+    ) {
+        try {
+            serverService.deleteChannelClusterById(serverId, clusterId);
+            return ResponseEntity.ok("Channel cluster deleted successfully");
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{serverId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<?> deleteServer(
+            @PathVariable String serverId
+    ) {
+        try {
+            serverService.deleteServerById(serverId);
+            return ResponseEntity.ok("Server deleted successfully");
+        } catch (EmptyResultDataAccessException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Server not found");
+        }
+    }
+
 }

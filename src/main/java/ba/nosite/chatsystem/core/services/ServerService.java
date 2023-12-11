@@ -10,6 +10,7 @@ import ba.nosite.chatsystem.core.services.authServices.JwtService;
 import com.amazonaws.HttpMethod;
 import com.amazonaws.services.kms.model.NotFoundException;
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
@@ -22,6 +23,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -100,9 +103,8 @@ public class ServerService {
 
 
     public void saveServer(String serverName, String authHeader, MultipartFile file) throws IOException, NoSuchAlgorithmException {
-        String fileName = UUID
-                .randomUUID()
-                .toString()
+        String fileName = "server_images/"
+                .concat(UUID.randomUUID().toString())
                 .concat("-")
                 .concat(Objects.requireNonNull(file.getOriginalFilename()));
 
@@ -228,6 +230,56 @@ public class ServerService {
         serverRepository.save(server);
     }
 
+    public void deleteChannelClusterById(String serverId, String clusterId) {
+        Server server = serverRepository.findById(serverId)
+                .orElseThrow(() -> new NotFoundException("Server not found with ID: " + serverId));
+
+        List<ChannelCluster> channelClusters = server.getChannelClusters();
+        channelClusters.removeIf(cluster -> cluster.get_id().equals(clusterId));
+
+        server.setChannelClusters(channelClusters);
+        serverRepository.save(server);
+    }
+
+    public void deleteServerById(String serverId) {
+        Server server = serverRepository.findById(serverId).orElse(null);
+
+        if (server != null) {
+            String imageUrl = server.getAvatarIconUrl();
+            deleteImageFromS3(imageUrl);
+
+            serverRepository.deleteById(serverId);
+        }
+    }
+
+    private void deleteImageFromS3(String imageUrl) {
+        if (imageUrl != null && !imageUrl.isEmpty()) {
+            String key = extractKeyFromImageUrl(imageUrl);
+            System.out.println(key);
+
+            try {
+                s3Client.deleteObject(new DeleteObjectRequest(bucketName, key));
+                logger.info("Image deleted from S3 successfully.");
+            } catch (Exception e) {
+                logger.info("Error deleting image from S3: ".concat(e.getMessage()));
+            }
+        }
+    }
+
+    private String extractKeyFromImageUrl(String imageUrl) {
+        try {
+            URI uri = new URI(imageUrl);
+            String path = uri.getPath();
+
+            if (path.startsWith("/")) {
+                path = path.substring(1);
+            }
+            return path;
+        } catch (URISyntaxException e) {
+            logger.error("Error parsing URL: ".concat(e.getMessage()));
+            return null;
+        }
+    }
 
     private List<ChannelInfo> getChannelInfosWithoutChatMessages(List<Channel> channels) {
         return channels.stream()

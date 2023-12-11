@@ -3,6 +3,7 @@ package ba.nosite.chatsystem.rest.controllers;
 import ba.nosite.chatsystem.core.dto.userDtos.UserEmail;
 import ba.nosite.chatsystem.core.dto.userDtos.UsersResponse;
 import ba.nosite.chatsystem.core.exceptions.auth.UserNotFoundException;
+import ba.nosite.chatsystem.core.models.user.Friend;
 import ba.nosite.chatsystem.core.models.user.User;
 import ba.nosite.chatsystem.core.services.UserService;
 import org.springframework.http.HttpStatus;
@@ -75,5 +76,40 @@ public class UserController {
             return ResponseEntity.ok("User exists in database.");
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found in database.");
+    }
+
+    @GetMapping("/{userId}/friends")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<List<Friend>> getFriends(@PathVariable String userId) {
+        try {
+            List<Friend> friends = userService.getFriends(userId);
+            return ResponseEntity.ok(friends);
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
+
+    @PostMapping("/{userId}/add-friend/{friendId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<UsersResponse> addFriend(@PathVariable String userId, @PathVariable String friendId) {
+        try {
+            UsersResponse response = userService.addFriend(userId, friendId);
+            return ResponseEntity.ok(response);
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+    }
+
+    @PostMapping("/{userId}/delete-friend/{friendId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<UsersResponse> deleteFriend(@PathVariable String userId, @PathVariable String friendId) {
+        try {
+            UsersResponse response = userService.deleteFriend(userId, friendId);
+            return ResponseEntity.ok(response);
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
     }
 }

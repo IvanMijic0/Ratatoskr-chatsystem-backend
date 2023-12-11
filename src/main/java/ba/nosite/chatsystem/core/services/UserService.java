@@ -1,8 +1,10 @@
 package ba.nosite.chatsystem.core.services;
 
+import ba.nosite.chatsystem.core.dto.userDtos.UserInfo;
 import ba.nosite.chatsystem.core.dto.userDtos.UserResponseWithoutId;
 import ba.nosite.chatsystem.core.dto.userDtos.UsersResponse;
 import ba.nosite.chatsystem.core.exceptions.auth.UserNotFoundException;
+import ba.nosite.chatsystem.core.models.user.Friend;
 import ba.nosite.chatsystem.core.models.user.Role;
 import ba.nosite.chatsystem.core.models.user.User;
 import ba.nosite.chatsystem.core.repository.UserRepository;
@@ -103,18 +105,20 @@ public class UserService implements UserDetailsService {
         }
     }
 
-    public UserResponseWithoutId getUserByAuthHeader(String authHeader) {
+    public UserInfo getUserByAuthHeader(String authHeader) {
         String jwt = extractJwtFromHeader(authHeader);
         String username = jwtService.extractUsername(jwt);
 
         Optional<User> potentialUser = userRepository.findByUsername(username);
 
-        if (potentialUser.isPresent()) {
-            User user = potentialUser.get();
-            return new UserResponseWithoutId(user);
-        } else {
-            throw new UserNotFoundException("User not found");
-        }
+        User user = potentialUser.orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        return new UserInfo(
+                user.getUsername(),
+                user.getFull_name(),
+                user.getEmail(),
+                user.getAvatarImageUrl()
+        );
     }
 
     public User getUserById(String userId) {
@@ -137,5 +141,59 @@ public class UserService implements UserDetailsService {
         Optional<User> user = userRepository.findByEmailOrUsername(username);
 
         return user.orElse(null);
+    }
+
+    public List<Friend> getFriends(String userId) {
+        Optional<User> userOptional = userRepository.findById(userId);
+        User user = userOptional.orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
+
+        return user.getFriends();
+    }
+
+    public UsersResponse addFriend(String userId, String friendId) {
+        Optional<User> userOptional = userRepository.findById(userId);
+        Optional<User> friendOptional = userRepository.findById(friendId);
+
+        if (userOptional.isPresent() && friendOptional.isPresent()) {
+            User user = userOptional.get();
+            User friend = friendOptional.get();
+
+            if (user.getFriends().stream().noneMatch(f -> f._id().equals(friendId))) {
+                Friend newFriend = new Friend(
+                        friend.get_id(),
+                        friend.getUsername(),
+                        friend.getFull_name(),
+                        friend.getEmail(),
+                        friend.getAvatarImageUrl()
+                );
+
+                user.getFriends().add(newFriend);
+                user.setUpdatedAt(LocalTime.now());
+
+                return new UsersResponse(userRepository.save(user));
+            } else {
+                throw new RuntimeException("User is already friends with the specified friend.");
+            }
+        } else {
+            throw new UserNotFoundException("User or friend not found");
+        }
+    }
+
+    public UsersResponse deleteFriend(String userId, String friendId) {
+        Optional<User> userOptional = userRepository.findById(userId);
+
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+
+            user.setFriends(user.getFriends().stream()
+                    .filter(friend -> !friend._id().equals(friendId))
+                    .collect(Collectors.toList()));
+
+            user.setUpdatedAt(LocalTime.now());
+
+            return new UsersResponse(userRepository.save(user));
+        } else {
+            throw new UserNotFoundException("User not found with ID: " + userId);
+        }
     }
 }
