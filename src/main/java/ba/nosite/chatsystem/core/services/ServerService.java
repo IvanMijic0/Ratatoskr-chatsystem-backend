@@ -169,7 +169,9 @@ public class ServerService {
                         return new ServerInfoResponse(
                                 server.get_id(),
                                 server.getName(),
-                                avatarIconUrl
+                                avatarIconUrl,
+                                server.getChannelClusters().getFirst().get_id(),
+                                server.getChannelClusters().getFirst().getChannels().getFirst().get_id()
                         );
                     })
                     .collect(Collectors.toList());

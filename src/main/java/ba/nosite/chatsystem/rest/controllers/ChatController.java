@@ -32,10 +32,10 @@ public class ChatController {
         return chatMessage;
     }
 
-    @MessageMapping("/chat.sendPrivateMessage")
-    public ChatMessage receivePrivateMessage(@Payload ChatMessage chatMessage) {
-        simpMessagingTemplate
-                .convertAndSendToUser(chatMessage.getReceiverName(), "/private", chatMessage);
-        return chatMessage;
-    }
+//    @MessageMapping("/chat.sendPrivateMessage")
+//    public ChatMessage receivePrivateMessage(@Payload ChatMessage chatMessage) {
+//        simpMessagingTemplate
+//                .convertAndSendToUser(chatMessage.getReceiverName(), "/private", chatMessage);
+//        return chatMessage;
+//    }
 }

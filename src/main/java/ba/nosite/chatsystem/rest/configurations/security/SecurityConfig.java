@@ -86,7 +86,8 @@ public class SecurityConfig extends SecurityConfigurerAdapter<DefaultSecurityFil
                                 "/api/v1/auth/registerWithGoogle",
                                 "/api/v1/auth/login",
                                 "/api/v1/auth/loginWithGoogle",
-                                "/api/v1/user/checkIfExists"
+                                "/api/v1/user/checkIfExists",
+                                "/api/v1/auth/refreshToken"
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET,
                                 "/api/v1/test/**",

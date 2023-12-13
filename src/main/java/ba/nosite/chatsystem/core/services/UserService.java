@@ -4,6 +4,7 @@ import ba.nosite.chatsystem.core.dto.userDtos.UserInfo;
 import ba.nosite.chatsystem.core.dto.userDtos.UserResponseWithoutId;
 import ba.nosite.chatsystem.core.dto.userDtos.UsersResponse;
 import ba.nosite.chatsystem.core.exceptions.auth.UserNotFoundException;
+import ba.nosite.chatsystem.core.models.chat.DirectMessaging;
 import ba.nosite.chatsystem.core.models.user.Friend;
 import ba.nosite.chatsystem.core.models.user.Role;
 import ba.nosite.chatsystem.core.models.user.User;
@@ -197,6 +198,38 @@ public class UserService implements UserDetailsService {
             return new UsersResponse(userRepository.save(user));
         } else {
             throw new UserNotFoundException("User not found with ID: " + userId);
+        }
+    }
+
+    public List<DirectMessaging> getDirectMessagings(String userId) {
+        Optional<User> userOptional = userRepository.findById(userId);
+        return userOptional.map(User::getDirectMessagings).orElse(null);
+    }
+
+    public void saveDirectMessaging(String userId, DirectMessaging directMessaging) {
+        Optional<User> userOptional = userRepository.findById(userId);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            List<DirectMessaging> directMessagings = user.getDirectMessagings();
+            directMessagings.add(directMessaging);
+            userRepository.save(user);
+        } else {
+            throw new UserNotFoundException("User not found with ID: " + userId);
+        }
+    }
+
+    public void deleteDirectMessaging(String userId, String directMessagingId) {
+        Optional<User> userOptional = userRepository.findById(userId);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            List<DirectMessaging> directMessagings = user.getDirectMessagings();
+
+            directMessagings.removeIf(dm -> dm.get_id().equals(directMessagingId));
+
+            userRepository.save(user);
+        } else {
+            throw new UserNotFoundException("User not found with ID: " + userId);
+
         }
     }
 

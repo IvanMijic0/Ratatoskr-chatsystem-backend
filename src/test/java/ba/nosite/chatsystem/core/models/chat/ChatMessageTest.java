@@ -20,7 +20,6 @@ public class ChatMessageTest {
 
         assertEquals(senderName, chatMessage.getSenderName());
         assertEquals(content, chatMessage.getContent());
-        assertEquals(receiverName, chatMessage.getReceiverName());
         assertEquals(date, chatMessage.getDate());
         assertEquals(type, chatMessage.getType());
     }
@@ -35,7 +34,7 @@ public class ChatMessageTest {
 
         assertEquals(senderName, chatMessage.getSenderName());
         assertEquals(content, chatMessage.getContent());
-        assertNull(chatMessage.getReceiverName());
+
         assertNull(chatMessage.getDate());
         assertEquals(type, chatMessage.getType());
     }

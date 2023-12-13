@@ -133,12 +133,11 @@ public class AuthService {
         return jwtService.isTokenValid(jwt, user);
     }
 
-    public void refreshToken(String jwtRefresh) {
+    public JwtAuthenticationResponse refreshToken(String jwtRefresh) {
         if (jwtRefresh != null) {
             User user = userService.findUserByUsername(jwtService.extractUsername(jwtRefresh));
             if (user != null) {
-                getJwtAuthenticationResponse(user);
-                return;
+                return getJwtAuthenticationResponse(user);
             }
         }
         throw new AuthenticationException("Invalid Credentials");

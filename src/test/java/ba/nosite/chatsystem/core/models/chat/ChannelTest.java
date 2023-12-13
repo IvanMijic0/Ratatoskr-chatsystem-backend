@@ -56,7 +56,6 @@ public class ChannelTest {
 
         ChatMessage messageWithNullValues = new ChatMessage(null, null, null);
         Assertions.assertNull(messageWithNullValues.getSenderName());
-        Assertions.assertNull(messageWithNullValues.getReceiverName());
         Assertions.assertNull(messageWithNullValues.getDate());
     }
 
@@ -76,7 +75,7 @@ public class ChannelTest {
         testChannel.getMessages().remove(messageToRemove);
         Assertions.assertEquals(1, testChannel.getMessages().size());
 
-        ChatMessage messageToUpdate = testChannel.getMessages().get(0);
+        ChatMessage messageToUpdate = testChannel.getMessages().getFirst();
         messageToUpdate.setContent("Updated Content");
         Assertions.assertEquals("Updated Content", messageToUpdate.getContent());
     }

@@ -1,5 +1,6 @@
 package ba.nosite.chatsystem.core.models.user;
 
+import ba.nosite.chatsystem.core.models.chat.DirectMessaging;
 import ba.nosite.chatsystem.core.models.chat.Server;
 import jakarta.validation.constraints.Email;
 import org.springframework.data.annotation.Id;
@@ -41,6 +42,7 @@ public class User implements UserDetails {
     private List<Server> servers;
     @DBRef(lazy = true)
     private List<Friend> friends;
+    private List<DirectMessaging> directMessagings;
 
     public User() {
     }
@@ -59,6 +61,14 @@ public class User implements UserDetails {
         this.email = email;
         this.password = password;
         this.role = role;
+    }
+
+    public List<DirectMessaging> getDirectMessagings() {
+        return directMessagings;
+    }
+
+    public void setDirectMessagings(List<DirectMessaging> directMessagings) {
+        this.directMessagings = directMessagings;
     }
 
     public List<Friend> getFriends() {
