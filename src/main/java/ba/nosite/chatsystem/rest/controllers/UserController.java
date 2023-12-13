@@ -1,6 +1,7 @@
 package ba.nosite.chatsystem.rest.controllers;
 
 import ba.nosite.chatsystem.core.dto.userDtos.UserEmail;
+import ba.nosite.chatsystem.core.dto.userDtos.UserInfo;
 import ba.nosite.chatsystem.core.dto.userDtos.UsersResponse;
 import ba.nosite.chatsystem.core.exceptions.auth.UserNotFoundException;
 import ba.nosite.chatsystem.core.models.user.Friend;
@@ -115,8 +116,8 @@ public class UserController {
 
     @GetMapping("/search")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<List<User>> searchUsers(@RequestParam String username) {
-        List<User> users = userService.searchUsersByUsername(username);
+    public ResponseEntity<List<UserInfo>> searchUsers(@RequestParam String username) {
+        List<UserInfo> users = userService.searchUsersByUsername(username);
         return ResponseEntity.ok(users);
     }
 }

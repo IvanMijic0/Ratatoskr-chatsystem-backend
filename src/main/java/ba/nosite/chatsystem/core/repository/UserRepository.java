@@ -1,5 +1,6 @@
 package ba.nosite.chatsystem.core.repository;
 
+import ba.nosite.chatsystem.core.dto.userDtos.UserInfo;
 import ba.nosite.chatsystem.core.models.user.User;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
@@ -17,5 +18,5 @@ public interface UserRepository extends MongoRepository<User, String> {
 
     Optional<User> findByVerificationCode(String code);
 
-    List<User> findByUsernameContainingIgnoreCase(String username);
+    List<UserInfo> findByUsernameContainingIgnoreCase(String username);
 }

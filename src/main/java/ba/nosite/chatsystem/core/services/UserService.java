@@ -115,6 +115,7 @@ public class UserService implements UserDetailsService {
         User user = potentialUser.orElseThrow(() -> new UserNotFoundException("User not found"));
 
         return new UserInfo(
+                user.get_id(),
                 user.getUsername(),
                 user.getFull_name(),
                 user.getEmail(),
@@ -201,7 +202,7 @@ public class UserService implements UserDetailsService {
         }
     }
 
-    public List<User> searchUsersByUsername(String username) {
+    public List<UserInfo> searchUsersByUsername(String username) {
         return userRepository.findByUsernameContainingIgnoreCase(username);
     }
 
