@@ -201,6 +201,10 @@ public class UserService implements UserDetailsService {
         }
     }
 
+    public List<User> searchUsersByUsername(String username) {
+        return userRepository.findByUsernameContainingIgnoreCase(username);
+    }
+
     public List<DirectMessaging> getDirectMessagings(String userId) {
         Optional<User> userOptional = userRepository.findById(userId);
         return userOptional.map(User::getDirectMessagings).orElse(null);

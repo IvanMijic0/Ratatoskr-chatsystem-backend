@@ -112,4 +112,11 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }
+
+    @GetMapping("/search")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<List<User>> searchUsers(@RequestParam String username) {
+        List<User> users = userService.searchUsersByUsername(username);
+        return ResponseEntity.ok(users);
+    }
 }
