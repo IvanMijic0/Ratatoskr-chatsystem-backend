@@ -20,7 +20,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static ba.nosite.chatsystem.helpers.jwtUtils.extractJwtFromHeader;
+import static ba.nosite.chatsystem.core.services.authServices.JwtService.extractJwtFromHeader;
+
 
 @Service
 public class UserService implements UserDetailsService {

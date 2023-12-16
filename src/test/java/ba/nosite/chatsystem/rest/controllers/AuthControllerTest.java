@@ -5,8 +5,8 @@ import ba.nosite.chatsystem.core.dto.authDtos.JwtAuthenticationResponse;
 import ba.nosite.chatsystem.core.dto.authDtos.LoginRequest;
 import ba.nosite.chatsystem.core.dto.authDtos.RegisterRequest;
 import ba.nosite.chatsystem.core.exceptions.auth.RegistrationException;
+import ba.nosite.chatsystem.core.services.JsonService;
 import ba.nosite.chatsystem.core.services.authServices.AuthService;
-import ba.nosite.chatsystem.helpers.JsonUtils;
 import ba.nosite.chatsystem.rest.configurations.security.SecurityConfig;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +35,8 @@ public class AuthControllerTest {
 
     @MockBean
     private AuthService authService;
+    @MockBean
+    private JsonService jsonService;
 
     @Test
     void shouldRegisterUserSuccessfully() throws Exception {
@@ -42,7 +44,7 @@ public class AuthControllerTest {
         mockMvc.perform(MockMvcRequestBuilders
                         .post("/api/v1/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(JsonUtils.toJson(registerRequest)))
+                        .content(jsonService.toJson(registerRequest)))
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
@@ -55,7 +57,7 @@ public class AuthControllerTest {
         mockMvc.perform(MockMvcRequestBuilders
                         .post("/api/v1/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(JsonUtils.toJson(registerRequest)))
+                        .content(jsonService.toJson(registerRequest)))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 
@@ -68,7 +70,7 @@ public class AuthControllerTest {
         mockMvc.perform(MockMvcRequestBuilders
                         .post("/api/v1/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(JsonUtils.toJson(loginRequest)))
+                        .content(jsonService.toJson(loginRequest)))
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
@@ -88,7 +90,7 @@ public class AuthControllerTest {
         mockMvc.perform(MockMvcRequestBuilders
                         .post("/api/v1/auth/loginWithGoogle")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(JsonUtils.toJson(googleLoginRequest)))
+                        .content(jsonService.toJson(googleLoginRequest)))
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
 

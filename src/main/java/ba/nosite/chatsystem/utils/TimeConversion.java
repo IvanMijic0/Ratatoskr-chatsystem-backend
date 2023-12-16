@@ -1,4 +1,4 @@
-package ba.nosite.chatsystem.helpers;
+package ba.nosite.chatsystem.utils;
 
 public class TimeConversion {
     public static Long convertHourToMs(Long toConvert) {

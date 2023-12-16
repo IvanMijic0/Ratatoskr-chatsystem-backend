@@ -18,8 +18,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.Map;
 import java.util.UUID;
 
-import static ba.nosite.chatsystem.helpers.jwtUtils.extractJwtFromHeader;
-
+import static ba.nosite.chatsystem.core.services.authServices.JwtService.extractJwtFromHeader;
 
 @Service
 public class AuthService {
