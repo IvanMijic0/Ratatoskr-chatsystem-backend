@@ -1,5 +1,7 @@
 package ba.nosite.chatsystem.core.services;
 
+import ba.nosite.chatsystem.core.models.chat.ChatMessage;
+import ba.nosite.chatsystem.core.models.user.User;
 import ba.nosite.chatsystem.core.services.redisServices.RedisListService;
 import org.springframework.stereotype.Service;
 
@@ -8,22 +10,32 @@ import java.util.List;
 @Service
 public class ChatMessageService {
     private final RedisListService redisListService;
+    private final UserService userService;
 
-    public ChatMessageService(RedisListService redisListService) {
+    public ChatMessageService(RedisListService redisListService, UserService userService) {
         this.redisListService = redisListService;
+        this.userService = userService;
     }
 
-    public void saveChatMessage(String channelId, String message) {
-        String key = "chatMessages:".concat(channelId);
+    public void saveChatMessage(String channelId, String clusterId, String serverId, ChatMessage message) {
+        String key = "chatMessages:".concat(clusterId).concat(":").concat(serverId).concat(":").concat(channelId);
         redisListService.addToList(key, message);
     }
 
-    public List<String> getChatMessages(String channelId, Class<?> clazz) {
-        String key = "chatMessages:".concat(channelId);
-        List<Object> chatMessages = redisListService.getList(key, clazz);
+    public List<ChatMessage> getChatMessages(String channelId, String clusterId, String serverId) {
+        String key = "chatMessages:".concat(clusterId).concat(":").concat(serverId).concat(":").concat(channelId);
+        return redisListService.getList(key, ChatMessage.class);
+    }
 
-        return chatMessages.stream()
-                .map(String::valueOf)
-                .toList();
+    public void migrateChatMessagesToMongoDb() {
+        List<User> allUsers = userService.listUsers();
+
+        allUsers.forEach(this::migrateUserChatMessages);
+    }
+
+    private void migrateUserChatMessages(User user) {
+        String userId = user.get_id();
+        String keyPrefix = "chatMessages:";
+
     }
 }

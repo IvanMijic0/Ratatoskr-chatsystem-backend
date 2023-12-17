@@ -67,13 +67,17 @@ public class UserService implements UserDetailsService {
         return new UsersResponse(userRepository.save(newUser));
     }
 
-    public List<UsersResponse> list() {
+    public List<UsersResponse> listUserResponse() {
         List<User> users = userRepository.findAll();
 
         return users
                 .stream()
                 .map(UsersResponse::new)
                 .collect(Collectors.toList());
+    }
+
+    public List<User> listUsers() {
+        return userRepository.findAll();
     }
 
     public UserResponseWithoutId update(String userId, User updatedUser) {

@@ -16,7 +16,7 @@ public class JsonService {
         return objectMapper.readValue(json, clazz);
     }
 
-    public Object deserializeJsonValue(String jsonValue, Class<?> clazz) {
+    public <T> T deserializeJsonValue(String jsonValue, Class<T> clazz) {
         try {
             return fromJson(jsonValue, clazz);
         } catch (Exception e) {

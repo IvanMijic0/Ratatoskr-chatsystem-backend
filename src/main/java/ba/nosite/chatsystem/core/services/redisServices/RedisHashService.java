@@ -1,13 +1,12 @@
 package ba.nosite.chatsystem.core.services.redisServices;
 
 import ba.nosite.chatsystem.core.services.JsonService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.Map;
 
 @Service
@@ -15,9 +14,9 @@ public class RedisHashService {
     private final JsonService jsonService;
     private final RedisTemplate<String, String> redisTemplate;
     private final HashOperations<String, String, String> hashOperations;
-    private final Logger logger = LoggerFactory.getLogger(RedisHashService.class);
+    @Value("${redis.dataMigration.expirationInDays}")
+    private int expirationInDays;
 
-    @Autowired
     public RedisHashService(JsonService jsonService, RedisTemplate<String, String> redisTemplate) {
         this.jsonService = jsonService;
         this.redisTemplate = redisTemplate;
@@ -25,10 +24,15 @@ public class RedisHashService {
     }
 
     public <T> void put(String key, String hashKey, T value) {
+        put(key, hashKey, value, Duration.ofDays(expirationInDays));
+    }
+
+    public <T> void put(String key, String hashKey, T value, Duration expiration) {
         try {
             hashOperations.put(key, hashKey, jsonService.toJson(value));
+            redisTemplate.expire(key, expiration);
         } catch (Exception e) {
-            logger.error("Error putting data into Redis hash: {}", e.getMessage());
+            throw new RuntimeException("Error putting data into Redis hash", e);
         }
     }
 
@@ -37,8 +41,7 @@ public class RedisHashService {
             String jsonValue = hashOperations.get(key, hashKey);
             return jsonService.fromJson(jsonValue, clazz);
         } catch (Exception e) {
-            logger.error("Error getting data from Redis hash: {}", e.getMessage());
-            return null;
+            throw new RuntimeException("Error getting data from Redis hash", e);
         }
     }
 
@@ -46,8 +49,7 @@ public class RedisHashService {
         try {
             return hashOperations.entries(key);
         } catch (Exception e) {
-            logger.error("Error getting all data from Redis hash: {}", e.getMessage());
-            return null;
+            throw new RuntimeException("Error getting all data from Redis hash", e);
         }
     }
 
@@ -55,7 +57,7 @@ public class RedisHashService {
         try {
             hashOperations.delete(key, hashKey);
         } catch (Exception e) {
-            logger.error("Error deleting data from Redis hash: {}", e.getMessage());
+            throw new RuntimeException("Error deleting data from Redis hash", e);
         }
     }
 
@@ -63,7 +65,7 @@ public class RedisHashService {
         try {
             redisTemplate.delete(key);
         } catch (Exception e) {
-            logger.error("Error deleting all data from Redis hash: {}", e.getMessage());
+            throw new RuntimeException("Error deleting all data from Redis hash", e);
         }
     }
 }
