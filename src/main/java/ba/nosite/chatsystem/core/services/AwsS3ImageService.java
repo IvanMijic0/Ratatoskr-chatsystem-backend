@@ -171,7 +171,7 @@ public class AwsS3ImageService {
         Long creationTime = redisHashService.get("avatarIconUrlCreationTimes", url, Long.class);
 
         if (creationTime != null) {
-            return System.currentTimeMillis() - creationTime > s3ImageExpirationThresholdInMs;
+            return System.currentTimeMillis() - creationTime < s3ImageExpirationThresholdInMs;
         } else {
             logger.info("URL not found in the map: ".concat(url));
 

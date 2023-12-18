@@ -4,6 +4,7 @@ import java.util.Date;
 
 public class ChatMessage {
     private String senderName;
+    private String receiverName;
     private String content;
     private Date date;
     private MessageType type;
@@ -13,6 +14,7 @@ public class ChatMessage {
 
     public ChatMessage(String senderName, String content, String receiverName, Date date, MessageType type) {
         this.senderName = senderName;
+        this.receiverName = receiverName;
         this.content = content;
         this.date = date;
         this.type = type;
@@ -22,6 +24,14 @@ public class ChatMessage {
         this.content = content;
         this.senderName = sender;
         this.type = type;
+    }
+
+    public String getReceiverName() {
+        return receiverName;
+    }
+
+    public void setReceiverName(String receiverName) {
+        this.receiverName = receiverName;
     }
 
     public String getSenderName() {

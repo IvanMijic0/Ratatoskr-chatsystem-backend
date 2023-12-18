@@ -11,7 +11,7 @@ public class Tuple2<K, V> {
     }
 
     public K getFirst() {
-        return first;
+        return this.first;
     }
 
     public void setFirst(K first) {
@@ -19,7 +19,7 @@ public class Tuple2<K, V> {
     }
 
     public V getSecond() {
-        return second;
+        return this.second;
     }
 
     public void setSecond(V second) {

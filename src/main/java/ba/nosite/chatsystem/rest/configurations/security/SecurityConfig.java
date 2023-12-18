@@ -65,6 +65,9 @@ public class SecurityConfig extends SecurityConfigurerAdapter<DefaultSecurityFil
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
 
+        configuration.addAllowedHeader("Connection");
+        configuration.addAllowedHeader("Upgrade");
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
@@ -75,8 +78,7 @@ public class SecurityConfig extends SecurityConfigurerAdapter<DefaultSecurityFil
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .cors(withDefaults())
-                .csrf(AbstractHttpConfigurer::disable
-                )
+                .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
@@ -94,6 +96,10 @@ public class SecurityConfig extends SecurityConfigurerAdapter<DefaultSecurityFil
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "api/v1/auth/verifyEmailToken",
+                                "/index.html",
+                                "/css/main.css",
+                                "/js/main.js",
+                                "/favicon.ico",
                                 "/topic/**",
                                 "/app",
                                 "/ws/**").permitAll()

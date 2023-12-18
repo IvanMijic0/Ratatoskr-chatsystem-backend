@@ -111,38 +111,40 @@ public class ServerService {
     public List<ServerInfoResponse> findServerByMemberId(String authHeader) {
         String memberId = jwtService.extractCustomClaim(extractJwtFromHeader(authHeader), "user_id");
 
-        Optional<List<Server>> potentialServers = serverRepository.findServersByMemberId(new ObjectId(memberId));
-        if (potentialServers.isPresent()) {
-            List<Server> servers = potentialServers.get();
+        List<Server> servers = serverRepository.findServersByMemberId(new ObjectId(memberId))
+                .orElseThrow(() -> new NotFoundException("This user is not a member in any server!"));
 
-            return servers
-                    .stream()
-                    .map(server -> {
-                        String avatarIconUrl = server.getAvatarIconUrl();
-                        Tuple2<String, Date> result = awsS3ImageService.refreshAvatarIconUrl(avatarIconUrl);
+        return servers.stream()
+                .map(server -> {
+                    String avatarIconUrl = server.getAvatarIconUrl();
+                    Tuple2<String, Date> result = awsS3ImageService.refreshAvatarIconUrl(avatarIconUrl);
+                    if (result != null) {
+                        logger.info("Refreshing avatar icon URL for - {}", avatarIconUrl);
+
                         String refreshedUrl = result.getFirst();
                         Date expirationTime = result.getSecond();
 
-                        if (refreshedUrl != null) {
-                            logger.info("Refreshing avatar icon URL for - ".concat(avatarIconUrl));
-                            server.setAvatarIconUrl(refreshedUrl);
-                            server.setAvatarIconUrlExpirationTime(expirationTime);
+                        server.setAvatarIconUrl(refreshedUrl);
+                        server.setAvatarIconUrlExpirationTime(expirationTime);
 
-                            serverRepository.save(server);
-                            redisHashService.put("avatarIconUrlCreationTimes", refreshedUrl, System.currentTimeMillis());
-                        }
+                        serverRepository.save(server);
+                        redisHashService.put("avatarIconUrlCreationTimes", refreshedUrl, System.currentTimeMillis());
+                    }
 
-                        return new ServerInfoResponse(
-                                server.get_id(),
-                                server.getName(),
-                                refreshedUrl != null ? refreshedUrl : avatarIconUrl,
-                                server.getChannelClusters().getFirst().get_id(),
-                                server.getChannelClusters().getFirst().getChannels().getFirst().get_id()
-                        );
-                    })
-                    .collect(Collectors.toList());
-        }
-        throw new NotFoundException("This user is not a member in any server!");
+                    ChannelCluster channelCluster = server.getChannelClusters().getFirst();
+                    Channel channel = channelCluster.getChannels().getFirst();
+
+                    String finalAvatarIconUrl = result != null ? result.getFirst() : avatarIconUrl;
+
+                    return new ServerInfoResponse(
+                            server.get_id(),
+                            server.getName(),
+                            finalAvatarIconUrl,
+                            channelCluster.get_id(),
+                            channel.get_id()
+                    );
+                })
+                .collect(Collectors.toList());
     }
 
     public void addChannelClusterToServer(String serverId, String channelClusterName) {

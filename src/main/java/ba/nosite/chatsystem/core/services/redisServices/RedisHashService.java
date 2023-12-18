@@ -1,6 +1,8 @@
 package ba.nosite.chatsystem.core.services.redisServices;
 
 import ba.nosite.chatsystem.core.services.JsonService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -14,6 +16,7 @@ public class RedisHashService {
     private final JsonService jsonService;
     private final RedisTemplate<String, String> redisTemplate;
     private final HashOperations<String, String, String> hashOperations;
+    private final Logger logger;
     @Value("${redis.dataMigration.expirationInDays}")
     private int expirationInDays;
 
@@ -21,6 +24,7 @@ public class RedisHashService {
         this.jsonService = jsonService;
         this.redisTemplate = redisTemplate;
         this.hashOperations = redisTemplate.opsForHash();
+        this.logger = LoggerFactory.getLogger(RedisHashService.class);
     }
 
     public <T> void put(String key, String hashKey, T value) {
@@ -55,6 +59,7 @@ public class RedisHashService {
 
     public void delete(String key, String hashKey) {
         try {
+            logger.info("Deleting hashKey {} from hash {}", hashKey, key);
             hashOperations.delete(key, hashKey);
         } catch (Exception e) {
             throw new RuntimeException("Error deleting data from Redis hash", e);
