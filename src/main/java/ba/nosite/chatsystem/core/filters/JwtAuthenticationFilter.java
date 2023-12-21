@@ -1,7 +1,7 @@
 package ba.nosite.chatsystem.core.filters;
 
-import ba.nosite.chatsystem.core.services.JwtService;
 import ba.nosite.chatsystem.core.services.UserService;
+import ba.nosite.chatsystem.core.services.authServices.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,7 +20,6 @@ import java.io.IOException;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-
     private final JwtService jwtService;
     private final UserService userService;
 
@@ -34,6 +33,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     @NotNull HttpServletResponse response,
                                     @NotNull FilterChain filterChain)
             throws ServletException, IOException {
+        if (jwtService == null || userService == null) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         final String authHeader = request.getHeader("Authorization");
         final String jwt;
         final String userEmail;

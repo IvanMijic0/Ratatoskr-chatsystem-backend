@@ -1,9 +1,10 @@
 package ba.nosite.chatsystem.rest.controllers;
 
-import ba.nosite.chatsystem.core.dto.UserResponse;
-import ba.nosite.chatsystem.core.models.User;
+import ba.nosite.chatsystem.core.dto.userDtos.UserEmail;
+import ba.nosite.chatsystem.core.dto.userDtos.UsersResponse;
+import ba.nosite.chatsystem.core.exceptions.auth.UserNotFoundException;
+import ba.nosite.chatsystem.core.models.user.User;
 import ba.nosite.chatsystem.core.services.UserService;
-import ba.nosite.chatsystem.rest.configurations.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,12 +24,8 @@ public class UserController {
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> list() {
-        try {
-            List<UserResponse> users = userService.list();
-            return ResponseEntity.ok(users);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while fetching the user list: " + e.getMessage());
-        }
+        List<UsersResponse> users = userService.list();
+        return ResponseEntity.ok(users);
     }
 
     @PostMapping
@@ -36,7 +33,6 @@ public class UserController {
     public ResponseEntity<?> createUser(@RequestBody User user) {
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.save(user));
     }
-
 
     @PatchMapping("/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
@@ -52,10 +48,32 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> deleteUser(@PathVariable String userId) {
         try {
-            userService.delete(userId);
-            return ResponseEntity.status(HttpStatus.OK).body("User with ID " + userId + " has been successfully deleted.");
+            userService.deleteById(userId);
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    "User with ID "
+                            .concat(userId)
+                            .concat(" has been successfully deleted.")
+            );
         } catch (UserNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
+    }
+
+    @GetMapping("/specific")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<?> getUserById(@RequestHeader("Authorization") String authHeader) {
+        try {
+            return ResponseEntity.ok(userService.getUserById(authHeader));
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/checkIfExists")
+    public ResponseEntity<?> checkIfUserExistsInDatabaseByEmail(@RequestBody UserEmail user) {
+        if (userService.checkIfUserIsInDatabaseByEmail(user.email())) {
+            return ResponseEntity.ok("User exists in database.");
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found in database.");
     }
 }

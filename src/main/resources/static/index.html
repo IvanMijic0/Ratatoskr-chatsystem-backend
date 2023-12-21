@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>RATATOSKR CHAT-SYSTEM (Testing Frontend)</title>
+    <link href="./css/main.css" rel="stylesheet">
+    <link href="favicon.ico" rel="icon" type="image/x-icon">
+</head>
+<body>
+<noscript>
+    <h2>Sorry! Your browser doesn't support Javascript</h2>
+</noscript>
+
+<div>
+    <h1 id="title">Testing SpringBoot WebSockets</h1>
+</div>
+
+<div id="username-page">
+    <div class="username-page-container">
+        <h1 class="title">Type your username to enter the Chatroom</h1>
+        <form id="usernameForm" name="usernameForm">
+            <div class="form-group">
+                <label for="name">Username</label>
+                <input class="form-control" id="name" placeholder="Username" type="text"/>
+            </div>
+            <div class="form-group">
+                <button class="accent username-submit" type="submit">Start Chatting</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="hidden" id="chat-page">
+    <video autoplay id="localVideo" playsinline></video>
+    <video autoplay id="remoteVideo" playsinline></video>
+
+    <div class="chat-container">
+        <div id="left-section" style="float: left; width: 200px;">
+            <div class="left-section-container">
+                <button class="left-section-button" id="chatroom-button">ChatRoom</button>
+            </div>
+        </div>
+        <div class="chat-header">
+            <h2>RATATOSKR CHAT-SYSTEM</h2>
+        </div>
+
+        <div class="connecting">
+            Connecting...
+        </div>
+        <ul id="messageArea">
+
+        </ul>
+        <form id="messageForm" name="messageForm">
+            <div class="form-group">
+                <div class="input-group clearfix">
+                    <input class="form-control" id="message" placeholder="Type a message..."
+                           type="text"/>
+                    <div class="button-group">
+                        <button class="primary" type="submit">Send</button>
+                        <button class="primary" id="videoButton" onclick="startVideoCall()">Video</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/simple-peer/simplepeer.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

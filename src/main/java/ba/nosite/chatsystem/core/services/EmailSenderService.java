@@ -1,6 +1,6 @@
 package ba.nosite.chatsystem.core.services;
 
-import ba.nosite.chatsystem.core.models.User;
+import ba.nosite.chatsystem.core.models.user.User;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -17,17 +17,17 @@ public class EmailSenderService {
         this.mailSender = mailSender;
     }
 
-    void sendVerificationEmail(User user, String siteURL)
+    public void sendVerificationEmail(User user, String siteURL)
             throws MessagingException, UnsupportedEncodingException {
         String toAddress = user.getEmail();
         String fromAddress = "ratatoskr@chatting.ba";
-        String senderName = "Ratatoskr Service";
+        String senderName = "Ratatoskr Chat-System";
         String subject = "Please verify your registration";
         String content = "Dear [[name]],<br>"
-                + "Please click the link below to verify your registration:<br>"
-                + "<h3><a href=\"[[URL]]\" target=\"_self\">VERIFY</a></h3>"
-                + "Thank you,<br>"
-                + "Ratatoskr Service";
+                .concat("Please click the link below to verify your registration:<br>")
+                .concat("<h3><a href=\"[[URL]]\" target=\"_self\">VERIFY</a></h3>")
+                .concat("Thank you,<br>")
+                .concat("Ratatoskr Service");
 
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message);
@@ -36,8 +36,8 @@ public class EmailSenderService {
         helper.setTo(toAddress);
         helper.setSubject(subject);
 
-        content = content.replace("[[name]]", user.getFull_name());
-        String verifyURL = siteURL + "/api/v1/verify?code=" + user.getVerificationCode();
+        content = content.replace("[[name]]", user.getUsername());
+        String verifyURL = siteURL.concat("/verify-email-token?code=").concat(user.getVerificationCode());
 
         content = content.replace("[[URL]]", verifyURL);
 

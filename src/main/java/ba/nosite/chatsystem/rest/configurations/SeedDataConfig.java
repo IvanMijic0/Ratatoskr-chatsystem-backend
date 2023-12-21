@@ -1,7 +1,7 @@
 package ba.nosite.chatsystem.rest.configurations;
 
-import ba.nosite.chatsystem.core.models.Role;
-import ba.nosite.chatsystem.core.models.User;
+import ba.nosite.chatsystem.core.models.user.Role;
+import ba.nosite.chatsystem.core.models.user.User;
 import ba.nosite.chatsystem.core.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -12,6 +12,7 @@ import java.time.LocalTime;
 @Component
 public class SeedDataConfig implements CommandLineRunner {
     private final UserRepository userRepository;
+
     private final BCryptPasswordEncoder passwordEncoder;
 
     public SeedDataConfig(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
@@ -25,8 +26,9 @@ public class SeedDataConfig implements CommandLineRunner {
             User admin = new User(
                     "admin",
                     "admin",
+                    "admin0",
                     "admin@admin.com",
-                    passwordEncoder.encode("password"),
+                    passwordEncoder.encode("password0"),
                     Role.ROLE_ADMIN
             );
             admin.setEnabled(true);

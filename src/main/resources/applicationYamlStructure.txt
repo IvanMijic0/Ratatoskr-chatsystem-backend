@@ -33,7 +33,8 @@ authentication:
     secret:
       key: {secretKey}
 
-    expirationms: 3600000
+    expirationHours: 3
+    refreshExpirationHours: 5
 
 logging:
   level:

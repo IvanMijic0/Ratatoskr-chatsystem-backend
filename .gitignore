@@ -35,3 +35,8 @@ build/
 ### Env Vars ###
 **/src/main/**/application.properties
 **/src/main/**/application.yaml
+**/src/test/resources/application-test.yaml
+
+### FRONTEND ###
+/src/main/resources/static/js/node_modules/
+/src/main/resources/static/js/package-lock.json
