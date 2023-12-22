@@ -27,6 +27,14 @@ public class RedisHashService {
         this.logger = LoggerFactory.getLogger(RedisHashService.class);
     }
 
+    public <T> void putWithoutExpire(String key, String hashKey, T value) {
+        try {
+            hashOperations.put(key, hashKey, jsonService.toJson(value));
+        } catch (Exception e) {
+            throw new RuntimeException("Error putting data into Redis hash", e);
+        }
+    }
+
     public <T> void put(String key, String hashKey, T value) {
         put(key, hashKey, value, Duration.ofDays(expirationInDays));
     }

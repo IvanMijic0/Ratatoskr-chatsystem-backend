@@ -18,5 +18,6 @@ public interface UserRepository extends MongoRepository<User, String> {
 
     Optional<User> findByVerificationCode(String code);
 
-    List<UserInfo> findByUsernameContainingIgnoreCase(String username);
+    @Query("{'username' : { $regex: ?0, $options: 'i' }, '_id': { $ne: ?1 }}")
+    List<UserInfo> findByUsernameContainingIgnoreCaseAndNotCurrentUser(String username, String currentUserId);
 }

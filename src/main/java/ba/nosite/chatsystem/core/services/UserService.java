@@ -150,7 +150,7 @@ public class UserService implements UserDetailsService {
         return user.orElse(null);
     }
 
-    public List<Friend> getFriends(String authHeader) {
+    public List<Friend> findFriends(String authHeader) {
         String userId = extractUserIdFromHeader(authHeader);
         Optional<User> userOptional = userRepository.findById(userId);
         User user = userOptional.orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
@@ -207,8 +207,9 @@ public class UserService implements UserDetailsService {
         }
     }
 
-    public List<UserInfo> searchUsersByUsername(String username) {
-        return userRepository.findByUsernameContainingIgnoreCase(username);
+    public List<UserInfo> searchUsersByUsername(String username, String autHeader) {
+        String currentUserId = extractUserIdFromHeader(autHeader);
+        return userRepository.findByUsernameContainingIgnoreCaseAndNotCurrentUser(username, currentUserId);
     }
 
     public List<DirectMessaging> getDirectMessagings(String userId) {

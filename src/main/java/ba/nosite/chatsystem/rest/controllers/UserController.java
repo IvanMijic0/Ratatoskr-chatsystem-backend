@@ -83,7 +83,7 @@ public class UserController {
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<List<Friend>> getFriends(@RequestHeader String authHeader) {
         try {
-            List<Friend> friends = userService.getFriends(authHeader);
+            List<Friend> friends = userService.findFriends(authHeader);
             return ResponseEntity.ok(friends);
         } catch (UserNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
@@ -105,7 +105,10 @@ public class UserController {
 
     @PostMapping("/delete-friend/{friendId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<UsersResponse> deleteFriend(@RequestHeader String authHeader, @PathVariable String friendId) {
+    public ResponseEntity<UsersResponse> deleteFriend(
+            @RequestHeader("Authorization") String authHeader,
+            @PathVariable String friendId
+    ) {
         try {
             UsersResponse response = userService.deleteFriend(authHeader, friendId);
             return ResponseEntity.ok(response);
@@ -116,8 +119,11 @@ public class UserController {
 
     @GetMapping("/search")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<List<UserInfo>> searchUsers(@RequestParam String username) {
-        List<UserInfo> users = userService.searchUsersByUsername(username);
+    public ResponseEntity<List<UserInfo>> searchUsers(
+            @RequestHeader("Authorization") String autHeader,
+            @RequestParam String username
+    ) {
+        List<UserInfo> users = userService.searchUsersByUsername(username, autHeader);
         return ResponseEntity.ok(users);
     }
 }

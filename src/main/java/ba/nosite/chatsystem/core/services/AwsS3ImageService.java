@@ -107,7 +107,6 @@ public class AwsS3ImageService {
         }
     }
 
-
     private Tuple2<String, Date> doRefresh(String avatarIconUrl) {
         Date newExpirationTime = generateExpirationTime();
 
@@ -116,7 +115,7 @@ public class AwsS3ImageService {
         String refreshedUrl = generatePreSignedUrl(newExpirationTime, fileName);
 
         redisHashService.delete(avatarIconUrl, "avatarIconUrlCreationTimes");
-        redisHashService.put("avatarIconUrlCreationTimes", refreshedUrl, newExpirationTime.getTime());
+        redisHashService.putWithoutExpire("avatarIconUrlCreationTimes", refreshedUrl, newExpirationTime.getTime());
 
         return new Tuple2<>(refreshedUrl, newExpirationTime);
     }
@@ -175,7 +174,7 @@ public class AwsS3ImageService {
         } else {
             logger.info("URL not found in the map: ".concat(url));
 
-            redisHashService.put("avatarIconUrlCreationTimes", url, System.currentTimeMillis());
+            redisHashService.putWithoutExpire("avatarIconUrlCreationTimes", url, System.currentTimeMillis());
             return false;
         }
     }

@@ -13,13 +13,13 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 import java.util.Objects;
 
 @Component
-public class WebSocketEventListener {
+public class WSEventListener {
     private final SimpMessageSendingOperations messageTemplate;
     private final Logger logger;
 
-    public WebSocketEventListener(SimpMessageSendingOperations messageTemplate) {
+    public WSEventListener(SimpMessageSendingOperations messageTemplate) {
         this.messageTemplate = messageTemplate;
-        logger = LoggerFactory.getLogger(WebSocketEventListener.class);
+        logger = LoggerFactory.getLogger(WSEventListener.class);
     }
 
     @EventListener

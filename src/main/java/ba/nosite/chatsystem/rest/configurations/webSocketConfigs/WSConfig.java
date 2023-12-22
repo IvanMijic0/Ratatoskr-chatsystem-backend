@@ -9,7 +9,7 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 
 @Configuration
 @EnableWebSocketMessageBroker
-public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+public class WSConfig implements WebSocketMessageBrokerConfigurer {
     @Value("${website.frontend.url}")
     private String allowedOrigin;
 
@@ -18,7 +18,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registry
                 .setApplicationDestinationPrefixes("/app")
                 .setUserDestinationPrefix("/user")
-                .enableSimpleBroker("/chatroom", "/user", "/ws");
+                .enableSimpleBroker("/chatroom", "/notifications");
     }
 
     @Override
