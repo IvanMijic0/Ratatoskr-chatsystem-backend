@@ -128,7 +128,6 @@ public class ServerService {
                         server.setAvatarIconUrlExpirationTime(expirationTime);
 
                         serverRepository.save(server);
-                        redisHashService.put("avatarIconUrlCreationTimes", refreshedUrl, System.currentTimeMillis());
                     }
 
                     ChannelCluster channelCluster = server.getChannelClusters().getFirst();

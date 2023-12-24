@@ -151,4 +151,8 @@ public class ServerController {
         }
     }
 
+//    @GetMapping("/refreshImages")
+//    public ResponseEntity<?> refreshImages() {
+//
+//    }
 }

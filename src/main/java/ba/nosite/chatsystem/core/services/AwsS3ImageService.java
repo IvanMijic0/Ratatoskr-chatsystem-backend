@@ -110,12 +110,15 @@ public class AwsS3ImageService {
     private Tuple2<String, Date> doRefresh(String avatarIconUrl) {
         Date newExpirationTime = generateExpirationTime();
 
-        logger.info("Refreshing avatar icon URL for - ".concat(avatarIconUrl));
+        logger.info("Refreshing avatar icon URL for - {}", avatarIconUrl);
         String fileName = "server_images/" + Objects.requireNonNull(extractFileNameFromUrl(avatarIconUrl));
         String refreshedUrl = generatePreSignedUrl(newExpirationTime, fileName);
 
-        redisHashService.delete(avatarIconUrl, "avatarIconUrlCreationTimes");
-        redisHashService.putWithoutExpire("avatarIconUrlCreationTimes", refreshedUrl, newExpirationTime.getTime());
+        // Use consistent keys for expiration times in Redis
+        String redisKey = "avatarIconUrlExpirationTimes";
+
+        redisHashService.delete(avatarIconUrl, redisKey);
+        redisHashService.putWithoutExpire(redisKey, refreshedUrl, newExpirationTime.getTime());
 
         return new Tuple2<>(refreshedUrl, newExpirationTime);
     }
@@ -126,9 +129,7 @@ public class AwsS3ImageService {
                         .withMethod(HttpMethod.GET)
                         .withExpiration(exp);
 
-        return s3Client
-                .generatePresignedUrl(urlRequest)
-                .toString();
+        return s3Client.generatePresignedUrl(urlRequest).toString();
     }
 
     private Date generateExpirationTime() {
@@ -167,14 +168,18 @@ public class AwsS3ImageService {
         if (StringUtils.isBlank(url)) {
             return false;
         }
-        Long creationTime = redisHashService.get("avatarIconUrlCreationTimes", url, Long.class);
+        String redisKey = "avatarIconUrlExpirationTimes";
+        Long expirationTime = redisHashService.get(redisKey, url, Long.class);
 
-        if (creationTime != null) {
-            return System.currentTimeMillis() - creationTime < s3ImageExpirationThresholdInMs;
+        // System.out.println("is expired " + (System.currentTimeMillis() <= expirationTime));
+
+        if (expirationTime != null) {
+            return System.currentTimeMillis() <= expirationTime;
         } else {
-            logger.info("URL not found in the map: ".concat(url));
+            logger.info("URL not found in the map: {}", url);
 
-            redisHashService.putWithoutExpire("avatarIconUrlCreationTimes", url, System.currentTimeMillis());
+            long newExpirationTime = System.currentTimeMillis() + s3ImageExpirationThresholdInMs;
+            redisHashService.putWithoutExpire(redisKey, url, newExpirationTime);
             return false;
         }
     }
