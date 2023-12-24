@@ -5,6 +5,7 @@ import ba.nosite.chatsystem.core.models.user.User;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -17,41 +18,41 @@ public class ServerTest {
         String ownerId = "owner123";
         List<User> members = new ArrayList<>();
         String serverId = "server123";
-        List<Channel> channels = new ArrayList<>();
+        List<ChannelCluster> channels = new ArrayList<>();
 
-        Server server = new Server(serverName, ownerId, members, serverId, channels);
+        Server server = new Server(serverName, ownerId, members, channels, "", new Date(System.currentTimeMillis()));
 
         assertEquals(serverName, server.getName());
         assertEquals(ownerId, server.getOwnerId());
         assertEquals(members, server.getMembers());
-        assertEquals(serverId, server.getId());
-        assertEquals(channels, server.getChannels());
+        assertEquals(serverId, server.get_id());
+        assertEquals(channels, server.getChannelClusters());
     }
 
     @Test
     void shouldSetAndGetChannels() {
-        Server server = new Server("MyServer", "owner123", new ArrayList<>(), "server123", new ArrayList<>());
+        Server server = new Server("MyServer", "owner123", new ArrayList<>(), new ArrayList<>(), "", new Date(System.currentTimeMillis()));
 
-        List<Channel> newChannels = new ArrayList<>();
-        newChannels.add(new Channel("channel123", "General", "server123", new ArrayList<>()));
-        server.setChannels(newChannels);
+        List<ChannelCluster> newChannels = new ArrayList<>();
+        newChannels.add(new ChannelCluster("General", new ArrayList<>()));
+        server.setChannelClusters(newChannels);
 
-        assertEquals(newChannels, server.getChannels());
+        assertEquals(newChannels, server.getChannelClusters());
     }
 
     @Test
     void shouldSetAndGetId() {
-        Server server = new Server("MyServer", "owner123", new ArrayList<>(), "server123", new ArrayList<>());
+        Server server = new Server("MyServer", "owner123", new ArrayList<>(), new ArrayList<>(), "", new Date(System.currentTimeMillis()));
 
         String newId = "newServerId";
-        server.setId(newId);
+        server.set_id(newId);
 
-        assertEquals(newId, server.getId());
+        assertEquals(newId, server.get_id());
     }
 
     @Test
     void shouldSetAndGetName() {
-        Server server = new Server("MyServer", "owner123", new ArrayList<>(), "server123", new ArrayList<>());
+        Server server = new Server("MyServer", "owner123", new ArrayList<>(), new ArrayList<>(), "", new Date(System.currentTimeMillis()));
 
         String newName = "NewServerName";
         server.setName(newName);
@@ -61,7 +62,7 @@ public class ServerTest {
 
     @Test
     void shouldSetAndGetOwnerId() {
-        Server server = new Server("MyServer", "owner123", new ArrayList<>(), "server123", new ArrayList<>());
+        Server server = new Server("MyServer", "owner123", new ArrayList<>(), new ArrayList<>(), "", new Date(System.currentTimeMillis()));
 
         String newOwnerId = "newOwner123";
         server.setOwnerId(newOwnerId);
@@ -71,7 +72,7 @@ public class ServerTest {
 
     @Test
     void shouldSetAndGetMembers() {
-        Server server = new Server("MyServer", "owner123", new ArrayList<>(), "server123", new ArrayList<>());
+        Server server = new Server("MyServer", "owner123", new ArrayList<>(), new ArrayList<>(), "", new Date(System.currentTimeMillis()));
 
         List<User> newMembers = new ArrayList<>();
         newMembers.add(new User(

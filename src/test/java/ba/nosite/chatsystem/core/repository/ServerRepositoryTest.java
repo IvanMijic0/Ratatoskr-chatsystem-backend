@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,34 +19,34 @@ public class ServerRepositoryTest {
 
     @Test
     public void shouldSaveServer() {
-        Server server = new Server("MyServer", "owner123", new ArrayList<>(), "server123", new ArrayList<>());
+        Server server = new Server("MyServer", "owner123", new ArrayList<>(), new ArrayList<>(), "", new Date(System.currentTimeMillis()));
         serverRepository.save(server);
 
-        Optional<Server> savedServer = serverRepository.findById(server.getId());
+        Optional<Server> savedServer = serverRepository.findById(server.get_id());
         Assertions.assertTrue(savedServer.isPresent());
         Assertions.assertEquals("MyServer", savedServer.get().getName());
     }
 
     @Test
     public void shouldDeleteServer() {
-        Server server = new Server("ServerToDelete", "owner123", new ArrayList<>(), "server123", new ArrayList<>());
+        Server server = new Server("ServerToDelete", "owner123", new ArrayList<>(), new ArrayList<>(), "", new Date(System.currentTimeMillis()));
         serverRepository.save(server);
 
-        serverRepository.deleteById(server.getId());
+        serverRepository.deleteById(server.get_id());
 
-        Optional<Server> deletedServer = serverRepository.findById(server.getId());
+        Optional<Server> deletedServer = serverRepository.findById(server.get_id());
         Assertions.assertFalse(deletedServer.isPresent());
     }
 
     @Test
     public void shouldUpdateServer() {
-        Server server = new Server("ServerToUpdate", "owner123", new ArrayList<>(), "server123", new ArrayList<>());
+        Server server = new Server("ServerToUpdate", "owner123", new ArrayList<>(), new ArrayList<>(), "", new Date(System.currentTimeMillis()));
         serverRepository.save(server);
 
         server.setName("UpdatedServer");
         serverRepository.save(server);
 
-        Optional<Server> updatedServer = serverRepository.findById(server.getId());
+        Optional<Server> updatedServer = serverRepository.findById(server.get_id());
         Assertions.assertTrue(updatedServer.isPresent());
         Assertions.assertEquals("UpdatedServer", updatedServer.get().getName());
     }
@@ -58,10 +59,10 @@ public class ServerRepositoryTest {
 
     @Test
     public void shouldFindServerById() {
-        Server server = new Server("ServerById", "owner123", new ArrayList<>(), "server123", new ArrayList<>());
+        Server server = new Server("ServerById", "owner123", new ArrayList<>(), new ArrayList<>(), "", new Date(System.currentTimeMillis()));
         serverRepository.save(server);
 
-        Optional<Server> foundServer = serverRepository.findById(server.getId());
+        Optional<Server> foundServer = serverRepository.findById(server.get_id());
         Assertions.assertTrue(foundServer.isPresent());
         Assertions.assertEquals("ServerById", foundServer.get().getName());
     }

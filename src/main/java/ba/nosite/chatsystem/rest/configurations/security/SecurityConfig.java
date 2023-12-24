@@ -61,9 +61,12 @@ public class SecurityConfig extends SecurityConfigurerAdapter<DefaultSecurityFil
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of(frontendUrl));
-        configuration.setAllowedMethods(List.of("GET", "POST", "OPTIONS"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "OPTIONS", "DELETE"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
+
+        configuration.addAllowedHeader("Connection");
+        configuration.addAllowedHeader("Upgrade");
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
@@ -75,8 +78,7 @@ public class SecurityConfig extends SecurityConfigurerAdapter<DefaultSecurityFil
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .cors(withDefaults())
-                .csrf(AbstractHttpConfigurer::disable
-                )
+                .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
@@ -86,13 +88,18 @@ public class SecurityConfig extends SecurityConfigurerAdapter<DefaultSecurityFil
                                 "/api/v1/auth/registerWithGoogle",
                                 "/api/v1/auth/login",
                                 "/api/v1/auth/loginWithGoogle",
-                                "/api/v1/user/checkIfExists"
+                                "/api/v1/user/checkIfExists",
+                                "/api/v1/auth/refreshToken"
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET,
                                 "/api/v1/test/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "api/v1/auth/verifyEmailToken",
+                                "/index.html",
+                                "/css/main.css",
+                                "/js/main.js",
+                                "/favicon.ico",
                                 "/topic/**",
                                 "/app",
                                 "/ws/**").permitAll()

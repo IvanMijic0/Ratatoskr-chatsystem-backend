@@ -6,42 +6,62 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.Date;
 import java.util.List;
 
 @Document(collection = "server")
 public class Server {
+    @Id
+    private String _id;
     private String name;
     @Indexed
     private String ownerId;
     @DBRef(lazy = true)
     private List<User> members;
-    @Id
-    private String id;
-    @DBRef(lazy = true)
-    private List<Channel> channels;
+    private List<ChannelCluster> channelClusters;
+    private String avatarIconUrl;
+    private Date avatarIconUrlExpirationTime;
 
-    public Server(String name, String ownerId, List<User> members, String id, List<Channel> channels) {
+    public Server(String name, String ownerId, List<User> members, List<ChannelCluster> channelClusters, String avatarIconUrl, Date avatarIconUrlExpirationTime) {
         this.name = name;
         this.ownerId = ownerId;
         this.members = members;
-        this.id = id;
-        this.channels = channels;
+        this.channelClusters = channelClusters;
+        this.avatarIconUrl = avatarIconUrl;
+        this.avatarIconUrlExpirationTime = avatarIconUrlExpirationTime;
+
     }
 
-    public List<Channel> getChannels() {
-        return channels;
+    public Date getAvatarIconUrlExpirationTime() {
+        return avatarIconUrlExpirationTime;
     }
 
-    public void setChannels(List<Channel> channels) {
-        this.channels = channels;
+    public void setAvatarIconUrlExpirationTime(Date avatarIconUrlExpirationTime) {
+        this.avatarIconUrlExpirationTime = avatarIconUrlExpirationTime;
     }
 
-    public String getId() {
-        return id;
+    public String getAvatarIconUrl() {
+        return this.avatarIconUrl;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setAvatarIconUrl(String avatarIconUrl) {
+        this.avatarIconUrl = avatarIconUrl;
+    }
+
+    public List<ChannelCluster> getChannelClusters() {
+        return channelClusters;
+    }
+
+    public void setChannelClusters(List<ChannelCluster> channelClusters) {
+        this.channelClusters = channelClusters;
+    }
+
+    public String get_id() {
+        return _id;
+    }
+
+    public void set_id(String _id) {
+        this._id = _id;
     }
 
     public String getName() {

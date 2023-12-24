@@ -41,7 +41,7 @@ public class UserControllerTest {
         // Mocking the service to return a list with one user for simplicity
         User mockUser = new User(/* user details */);
         UsersResponse mockUsersResponse = new UsersResponse(mockUser);
-        when(userService.list()).thenReturn(Collections.singletonList(mockUsersResponse));
+        when(userService.listUserResponse()).thenReturn(Collections.singletonList(mockUsersResponse));
 
         mockMvc.perform(MockMvcRequestBuilders
                         .get("/api/v1/user")

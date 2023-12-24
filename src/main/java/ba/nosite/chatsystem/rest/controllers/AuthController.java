@@ -10,6 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.security.auth.login.LoginException;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -75,14 +76,14 @@ public class AuthController {
         return ResponseEntity.status(401).body("Confirmation token expired or not present!");
     }
 
-    @GetMapping("/refreshToken")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<?> refreshToken(@RequestBody String refreshToken) {
+    @PostMapping("/refreshToken")
+    public ResponseEntity<?> refreshToken(@RequestBody Map<String, String> requestBody) {
         try {
-            authService.refreshToken(refreshToken);
-            return ResponseEntity.status(200).body("Successfully refreshed token");
+            String refreshToken = requestBody.get("refreshToken");
+            return ResponseEntity.status(200).body(authService.refreshToken(refreshToken));
         } catch (Exception e) {
-            return ResponseEntity.status(401).body("Failed to refresh token");
+            return ResponseEntity.status(401).body("Failed to refresh token: \n".concat(e.getMessage()));
         }
     }
+
 }

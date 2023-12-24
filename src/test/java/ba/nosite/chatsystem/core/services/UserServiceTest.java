@@ -81,7 +81,7 @@ class UserServiceTest {
 
         when(userRepository.findAll()).thenReturn(userList);
 
-        List<UsersResponse> usersResponseList = userService.list();
+        List<UsersResponse> usersResponseList = userService.listUserResponse();
 
         assertEquals(1, usersResponseList.size());
         assertEquals(testUser.get_id(), usersResponseList.get(0).get_id());

@@ -1,8 +1,10 @@
 package ba.nosite.chatsystem.rest.controllers;
 
 import ba.nosite.chatsystem.core.dto.userDtos.UserEmail;
+import ba.nosite.chatsystem.core.dto.userDtos.UserInfo;
 import ba.nosite.chatsystem.core.dto.userDtos.UsersResponse;
 import ba.nosite.chatsystem.core.exceptions.auth.UserNotFoundException;
+import ba.nosite.chatsystem.core.models.user.Friend;
 import ba.nosite.chatsystem.core.models.user.User;
 import ba.nosite.chatsystem.core.services.UserService;
 import org.springframework.http.HttpStatus;
@@ -24,7 +26,7 @@ public class UserController {
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> list() {
-        List<UsersResponse> users = userService.list();
+        List<UsersResponse> users = userService.listUserResponse();
         return ResponseEntity.ok(users);
     }
 
@@ -63,7 +65,7 @@ public class UserController {
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<?> getUserById(@RequestHeader("Authorization") String authHeader) {
         try {
-            return ResponseEntity.ok(userService.getUserById(authHeader));
+            return ResponseEntity.ok(userService.getUserByAuthHeader(authHeader));
         } catch (UserNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
@@ -75,5 +77,53 @@ public class UserController {
             return ResponseEntity.ok("User exists in database.");
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found in database.");
+    }
+
+    @GetMapping("/friends")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<List<Friend>> getFriends(@RequestHeader String authHeader) {
+        try {
+            List<Friend> friends = userService.findFriends(authHeader);
+            return ResponseEntity.ok(friends);
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
+
+    @PostMapping("/add-friend/{friendId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<UsersResponse> addFriend(@RequestHeader String authHeader, @PathVariable String friendId) {
+        try {
+            UsersResponse response = userService.addFriend(authHeader, friendId);
+            return ResponseEntity.ok(response);
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+    }
+
+    @PostMapping("/delete-friend/{friendId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<UsersResponse> deleteFriend(
+            @RequestHeader("Authorization") String authHeader,
+            @PathVariable String friendId
+    ) {
+        try {
+            UsersResponse response = userService.deleteFriend(authHeader, friendId);
+            return ResponseEntity.ok(response);
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
+
+    @GetMapping("/search")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<List<UserInfo>> searchUsers(
+            @RequestHeader("Authorization") String autHeader,
+            @RequestParam String username
+    ) {
+        List<UserInfo> users = userService.searchUsersByUsername(username, autHeader);
+        return ResponseEntity.ok(users);
     }
 }

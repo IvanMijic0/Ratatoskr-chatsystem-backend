@@ -19,7 +19,7 @@ import org.springframework.context.annotation.Configuration;
                 )
         ),
         security = {
-                @SecurityRequirement(name = "CookieAuth")
+                @SecurityRequirement(name = "BearerAuth")
         },
         servers = {
                 @Server(url = "/", description = "Default Server URL")

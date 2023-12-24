@@ -27,7 +27,6 @@ public class ChatController {
     @MessageMapping("/chat.addUser")
     @SendTo("/chatroom/public")
     public ChatMessage addUser(@Payload ChatMessage chatMessage, SimpMessageHeaderAccessor headerAccessor) {
-        // Add username in WebSocket session
         Objects.requireNonNull(headerAccessor.getSessionAttributes()).put("username", chatMessage.getSender());
         return chatMessage;
     }

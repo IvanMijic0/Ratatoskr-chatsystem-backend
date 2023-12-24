@@ -18,8 +18,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.Map;
 import java.util.UUID;
 
-import static ba.nosite.chatsystem.helpers.jwtUtils.extractJwtFromHeader;
-
+import static ba.nosite.chatsystem.core.services.authServices.JwtService.extractJwtFromHeader;
 
 @Service
 public class AuthService {
@@ -63,8 +62,7 @@ public class AuthService {
 
     public void registerWithGoogle(GoogleRegisterRequest request) throws UserAlreadyExistsException {
         User user = new User(
-                request
-                        .firstName()
+                request.firstName()
                         .concat(request.lastName())
                         .concat("#")
                         .concat(UUID.randomUUID().toString().substring(0, 8)),
@@ -134,12 +132,11 @@ public class AuthService {
         return jwtService.isTokenValid(jwt, user);
     }
 
-    public void refreshToken(String jwtRefresh) {
+    public JwtAuthenticationResponse refreshToken(String jwtRefresh) {
         if (jwtRefresh != null) {
             User user = userService.findUserByUsername(jwtService.extractUsername(jwtRefresh));
             if (user != null) {
-                getJwtAuthenticationResponse(user);
-                return;
+                return getJwtAuthenticationResponse(user);
             }
         }
         throw new AuthenticationException("Invalid Credentials");
