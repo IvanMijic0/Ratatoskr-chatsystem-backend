@@ -1,50 +1,49 @@
 package ba.nosite.chatsystem.core.services;
 
 import ba.nosite.chatsystem.core.models.chat.Notification;
-import ba.nosite.chatsystem.core.models.chat.NotificationType;
 import ba.nosite.chatsystem.core.models.user.User;
+import ba.nosite.chatsystem.core.services.authServices.JwtService;
 import ba.nosite.chatsystem.core.services.redisServices.RedisSetService;
-import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
+
+import static ba.nosite.chatsystem.core.services.authServices.JwtService.extractJwtFromHeader;
 
 @Service
 public class NotificationService {
     private final RedisSetService redisSetService;
     private final UserService userService;
+    private final JwtService jwtService;
 
     @Value("${redis.test.notifications.enabled}")
     private boolean testNotificationsEnabled;
 
-    public NotificationService(RedisSetService redisSetService, UserService userService) {
+    public NotificationService(RedisSetService redisSetService, UserService userService, JwtService jwtService) {
         this.redisSetService = redisSetService;
         this.userService = userService;
+        this.jwtService = jwtService;
     }
 
-    @PostConstruct
-    public void init() {
-        if (testNotificationsEnabled) {
-            addTestNotifications();
-        }
-    }
-
-    public void addNotification(String userId, Notification notification) {
-        String key = "notifications:".concat(userId);
+    public void addNotification(String receiverId, Notification notification) {
+        String key = "notifications:".concat(receiverId);
         redisSetService.addToSet(key, notification);
     }
 
-    public Set<Notification> getNotifications(String userId) {
+    public Set<Notification> getNotifications(String authHeader) {
+        String userId = jwtService.extractCustomClaim(extractJwtFromHeader(authHeader), "user_id");
+
         String key = "notifications:".concat(userId);
         return redisSetService.getSet(key, Notification.class);
     }
 
-    public void removeNotification(String userId, Notification notification) {
+    public void removeNotification(String authHeader) {
+        String userId = jwtService.extractCustomClaim(extractJwtFromHeader(authHeader), "user_id");
+
         String key = "notifications:".concat(userId);
-        redisSetService.removeFromSet(key, notification);
+        redisSetService.removeFromSet(key);
     }
 
     public void migrateNotificationsToMongoDb() {
@@ -61,14 +60,5 @@ public class NotificationService {
         user.setNotifications(Set.copyOf(notifications));
 
         userService.save(user);
-    }
-
-    private void addTestNotifications() {
-        String userId = "testUser";
-        Notification friendRequestNotification = new Notification(NotificationType.FRIEND_REQUEST, new Date(), "senderUserId", "Friend request content");
-        Notification chatMessageNotification = new Notification(NotificationType.CHAT_MESSAGE, new Date(), "senderUserId", "New Chat Message content");
-
-        addNotification(userId, friendRequestNotification);
-        addNotification(userId, chatMessageNotification);
     }
 }

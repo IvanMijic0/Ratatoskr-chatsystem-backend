@@ -49,11 +49,11 @@ public class RedisSetService {
         }
     }
 
-    public void removeFromSet(String key, Object value) {
+    public void removeFromSet(String key) {
         try {
-            setOperations.remove(key, jsonService.toJson(value));
+            redisTemplate.delete(key);
         } catch (Exception e) {
-            throw new RuntimeException("Error removing from Redis set", e);
+            throw new RuntimeException("Error removing Redis set", e);
         }
     }
 }

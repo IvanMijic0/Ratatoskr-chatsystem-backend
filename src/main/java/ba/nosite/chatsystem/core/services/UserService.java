@@ -14,6 +14,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalTime;
 import java.util.List;
@@ -153,12 +154,27 @@ public class UserService implements UserDetailsService {
     public List<Friend> findFriends(String authHeader) {
         String userId = extractUserIdFromHeader(authHeader);
         Optional<User> userOptional = userRepository.findById(userId);
-        User user = userOptional.orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
+        User user = userOptional.orElseThrow(() -> new UserNotFoundException("User not found with ID: ".concat(userId)));
 
         return user.getFriends();
     }
 
-    public UsersResponse addFriend(String authHeader, String friendId) {
+    public Friend findFriendFromFriendRequest(String friendId) {
+        Optional<User> friendOptional = userRepository.findById(friendId);
+
+        return friendOptional.map(user ->
+                new Friend(
+                        user.get_id(),
+                        user.getUsername(),
+                        user.getFull_name(),
+                        user.getEmail(),
+                        user.getAvatarImageUrl()
+                )
+        ).orElse(null);
+    }
+
+    @Transactional
+    public String addFriend(String authHeader, String friendId) {
         String userId = extractUserIdFromHeader(authHeader);
         Optional<User> userOptional = userRepository.findById(userId);
         Optional<User> friendOptional = userRepository.findById(friendId);
@@ -167,8 +183,8 @@ public class UserService implements UserDetailsService {
             User user = userOptional.get();
             User friend = friendOptional.get();
 
-            if (user.getFriends().stream().noneMatch(f -> f._id().equals(friendId))) {
-                Friend newFriend = new Friend(
+            if (user.getFriends() == null || user.getFriends().stream().noneMatch(f -> f._id().equals(friendId))) {
+                Friend newFriend1 = new Friend(
                         friend.get_id(),
                         friend.getUsername(),
                         friend.getFull_name(),
@@ -176,10 +192,25 @@ public class UserService implements UserDetailsService {
                         friend.getAvatarImageUrl()
                 );
 
-                user.getFriends().add(newFriend);
-                user.setUpdatedAt(LocalTime.now());
+                Friend newFriend2 = new Friend(
+                        user.get_id(),
+                        user.getUsername(),
+                        user.getFull_name(),
+                        user.getEmail(),
+                        user.getAvatarImageUrl()
+                );
 
-                return new UsersResponse(userRepository.save(user));
+                System.out.println("New Friend: " + newFriend1.username());
+
+                user.addFriend(newFriend1);
+                friend.addFriend(newFriend2);
+                user.setUpdatedAt(LocalTime.now());
+                friend.setUpdatedAt(LocalTime.now());
+
+                userRepository.save(user);
+                userRepository.save(friend);
+
+                return "Friend added successfully.";
             } else {
                 throw new RuntimeException("User is already friends with the specified friend.");
             }

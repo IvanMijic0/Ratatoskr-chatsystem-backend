@@ -114,7 +114,6 @@ public class AwsS3ImageService {
         String fileName = "server_images/" + Objects.requireNonNull(extractFileNameFromUrl(avatarIconUrl));
         String refreshedUrl = generatePreSignedUrl(newExpirationTime, fileName);
 
-        // Use consistent keys for expiration times in Redis
         String redisKey = "avatarIconUrlExpirationTimes";
 
         redisHashService.delete(avatarIconUrl, redisKey);
@@ -168,19 +167,30 @@ public class AwsS3ImageService {
         if (StringUtils.isBlank(url)) {
             return false;
         }
+
         String redisKey = "avatarIconUrlExpirationTimes";
         Long expirationTime = redisHashService.get(redisKey, url, Long.class);
 
-        // System.out.println("is expired " + (System.currentTimeMillis() <= expirationTime));
+        // System.out.println("Current Time: " + System.currentTimeMillis());
+        // System.out.println("Expiration Time from Redis: " + expirationTime);
 
-        if (expirationTime != null) {
-            return System.currentTimeMillis() <= expirationTime;
-        } else {
-            logger.info("URL not found in the map: {}", url);
-
-            long newExpirationTime = System.currentTimeMillis() + s3ImageExpirationThresholdInMs;
-            redisHashService.putWithoutExpire(redisKey, url, newExpirationTime);
+        if (expirationTime != null && System.currentTimeMillis() <= expirationTime) {
             return false;
         }
+
+        logger.info("URL not found in the map or expired: {}", url);
+
+        long newExpirationTime = System.currentTimeMillis() + s3ImageExpirationThresholdInMs;
+        System.out.println("New Expiration Time: " + newExpirationTime);
+
+        redisHashService.putWithoutExpire(redisKey, url, newExpirationTime);
+
+        System.out.println("Number of entries before deletion: " + redisHashService.size(redisKey));
+
+        redisHashService.delete(redisKey, url);
+
+        System.out.println("Number of entries after deletion: " + redisHashService.size(redisKey));
+
+        return true;
     }
 }

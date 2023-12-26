@@ -2,10 +2,8 @@ package ba.nosite.chatsystem.core.models.user;
 
 import ba.nosite.chatsystem.core.models.chat.DirectMessaging;
 import ba.nosite.chatsystem.core.models.chat.Notification;
-import ba.nosite.chatsystem.core.models.chat.Server;
 import jakarta.validation.constraints.Email;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -15,10 +13,7 @@ import javax.persistence.Column;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import java.time.LocalTime;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Document(collection = "user")
 public class User implements UserDetails {
@@ -40,12 +35,9 @@ public class User implements UserDetails {
     private Role role;
     private String verificationCode;
     private Boolean enabled;
-    @DBRef(lazy = true)
-    private List<Server> servers;
-    @DBRef(lazy = true)
-    private List<Friend> friends;
-    private List<DirectMessaging> directMessagings;
-    private Set<Notification> notifications;
+    private List<Friend> friends = new ArrayList<>();
+    private List<DirectMessaging> directMessagings = new ArrayList<>();
+    private Set<Notification> notifications = new HashSet<>();
 
     public User() {
     }
@@ -90,12 +82,8 @@ public class User implements UserDetails {
         this.friends = friends;
     }
 
-    public List<Server> getServers() {
-        return servers;
-    }
-
-    public void setServers(List<Server> servers) {
-        this.servers = servers;
+    public void addFriend(Friend friend) {
+        this.friends.add(friend);
     }
 
     public String getGoogleId() {

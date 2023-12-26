@@ -3,6 +3,7 @@ package ba.nosite.chatsystem.rest.controllers;
 import ba.nosite.chatsystem.core.models.chat.Notification;
 import ba.nosite.chatsystem.core.services.NotificationService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Set;
@@ -16,21 +17,24 @@ public class NotificationController {
         this.notificationService = notificationService;
     }
 
-    @PostMapping("/{userId}")
-    public ResponseEntity<String> addNotification(@PathVariable String userId, @RequestBody Notification notification) {
-        notificationService.addNotification(userId, notification);
+    @PostMapping("/{receiverId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<String> addNotification(@PathVariable String receiverId, @RequestBody Notification notification) {
+        notificationService.addNotification(receiverId, notification);
         return ResponseEntity.ok("Notification added successfully");
     }
 
-    @GetMapping("/{userId}")
-    public ResponseEntity<Set<Notification>> getNotifications(@PathVariable String userId) {
-        Set<Notification> notifications = notificationService.getNotifications(userId);
+    @GetMapping()
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<Set<Notification>> getNotifications(@RequestHeader("Authorization") String authHeader) {
+        Set<Notification> notifications = notificationService.getNotifications(authHeader);
         return ResponseEntity.ok(notifications);
     }
 
-    @DeleteMapping("/{userId}")
-    public ResponseEntity<String> removeNotification(@PathVariable String userId, @RequestBody Notification notification) {
-        notificationService.removeNotification(userId, notification);
+    @DeleteMapping()
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<String> removeNotification(@RequestHeader("Authorization") String authHeader) {
+        notificationService.removeNotification(authHeader);
         return ResponseEntity.ok("Notification removed successfully");
     }
 }

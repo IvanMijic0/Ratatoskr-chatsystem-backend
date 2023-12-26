@@ -71,6 +71,16 @@ public class UserController {
         }
     }
 
+    @GetMapping("/{friendId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<?> getFriendByUd(@PathVariable String friendId) {
+        try {
+            return ResponseEntity.ok(userService.findFriendFromFriendRequest(friendId));
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
     @PostMapping("/checkIfExists")
     public ResponseEntity<?> checkIfUserExistsInDatabaseByEmail(@RequestBody UserEmail user) {
         if (userService.checkIfUserIsInDatabaseByEmail(user.email())) {
@@ -81,7 +91,7 @@ public class UserController {
 
     @GetMapping("/friends")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<List<Friend>> getFriends(@RequestHeader String authHeader) {
+    public ResponseEntity<List<Friend>> getFriends(@RequestHeader("Authorization") String authHeader) {
         try {
             List<Friend> friends = userService.findFriends(authHeader);
             return ResponseEntity.ok(friends);
@@ -92,9 +102,9 @@ public class UserController {
 
     @PostMapping("/add-friend/{friendId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<UsersResponse> addFriend(@RequestHeader String authHeader, @PathVariable String friendId) {
+    public ResponseEntity<String> addFriend(@RequestHeader("Authorization") String authHeader, @PathVariable String friendId) {
         try {
-            UsersResponse response = userService.addFriend(authHeader, friendId);
+            String response = userService.addFriend(authHeader, friendId);
             return ResponseEntity.ok(response);
         } catch (UserNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);

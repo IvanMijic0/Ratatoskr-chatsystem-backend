@@ -81,4 +81,12 @@ public class RedisHashService {
             throw new RuntimeException("Error deleting all data from Redis hash", e);
         }
     }
+
+    public long size(String key) {
+        try {
+            return hashOperations.size(key);
+        } catch (Exception e) {
+            throw new RuntimeException("Error getting size of Redis hash", e);
+        }
+    }
 }

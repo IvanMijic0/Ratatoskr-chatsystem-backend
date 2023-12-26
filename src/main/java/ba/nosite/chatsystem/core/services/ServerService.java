@@ -7,7 +7,6 @@ import ba.nosite.chatsystem.core.models.chat.*;
 import ba.nosite.chatsystem.core.models.user.User;
 import ba.nosite.chatsystem.core.repository.ServerRepository;
 import ba.nosite.chatsystem.core.services.authServices.JwtService;
-import ba.nosite.chatsystem.core.services.redisServices.RedisHashService;
 import ba.nosite.chatsystem.customTypes.Tuple2;
 import com.amazonaws.services.kms.model.NotFoundException;
 import org.bson.types.ObjectId;
@@ -29,20 +28,18 @@ public class ServerService {
     private final JwtService jwtService;
     private final UserService userService;
     private final AwsS3ImageService awsS3ImageService;
-    private final RedisHashService redisHashService;
     Logger logger;
 
     public ServerService(
             ServerRepository serverRepository,
             JwtService jwtService,
             UserService userService,
-            AwsS3ImageService awsS3ImageService, RedisHashService redisHashService
+            AwsS3ImageService awsS3ImageService
     ) {
         this.serverRepository = serverRepository;
         this.jwtService = jwtService;
         this.userService = userService;
         this.awsS3ImageService = awsS3ImageService;
-        this.redisHashService = redisHashService;
         logger = LoggerFactory.getLogger(ServerService.class);
     }
 
