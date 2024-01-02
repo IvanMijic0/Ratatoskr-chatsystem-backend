@@ -1,9 +1,7 @@
 package ba.nosite.chatsystem.core.models.chat;
 
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection = "webRtcPeers")
 public class WebRTCPeer {
     @Id
     private String id;

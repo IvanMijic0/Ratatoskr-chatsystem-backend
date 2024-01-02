@@ -1,9 +1,12 @@
 package ba.nosite.chatsystem.core.services;
 
+import ba.nosite.chatsystem.core.dto.chatDtos.Channel;
 import ba.nosite.chatsystem.core.dto.chatDtos.ChannelClusterInfo;
-import ba.nosite.chatsystem.core.dto.chatDtos.ChannelInfo;
 import ba.nosite.chatsystem.core.dto.chatDtos.ServerInfoResponse;
-import ba.nosite.chatsystem.core.models.chat.*;
+import ba.nosite.chatsystem.core.models.chat.ChannelCluster;
+import ba.nosite.chatsystem.core.models.chat.ChatMessage;
+import ba.nosite.chatsystem.core.models.chat.MessageType;
+import ba.nosite.chatsystem.core.models.chat.Server;
 import ba.nosite.chatsystem.core.models.user.User;
 import ba.nosite.chatsystem.core.repository.ServerRepository;
 import ba.nosite.chatsystem.core.services.authServices.JwtService;
@@ -58,7 +61,21 @@ public class ServerService {
                 .orElse(Collections.emptyList());
     }
 
-    public Channel getChannelByIds(String serverId, String channelClusterId, String channelId) {
+    public ServerInfoResponse findServerById(String serverId) {
+        Optional<Server> serverOptional = serverRepository.findById(serverId);
+
+        return serverOptional.map(server -> new ServerInfoResponse(
+                        server.get_id(),
+                        server.getName(),
+                        server.getAvatarIconUrl(),
+                        server.getChannelClusters().getFirst().get_id(),
+                        server.getChannelClusters().getFirst().getChannels().getFirst().get_id()
+                ))
+                .orElseThrow(() -> new NotFoundException("Server not found with ID: " + serverId));
+    }
+
+
+    public ba.nosite.chatsystem.core.models.chat.Channel getChannelByIds(String serverId, String channelClusterId, String channelId) {
         Optional<Server> serverOptional = serverRepository.findById(serverId);
 
         return serverOptional.flatMap(server -> {
@@ -90,7 +107,7 @@ public class ServerService {
                 "Ratatoskr",
                 MessageType.MESSAGE);
 
-        Channel channel = new Channel("General", new ArrayList<>(List.of(chatMessage)));
+        ba.nosite.chatsystem.core.models.chat.Channel channel = new ba.nosite.chatsystem.core.models.chat.Channel("General", new ArrayList<>(List.of(chatMessage)));
 
         ChannelCluster channelCluster = new ChannelCluster("Defaults", new ArrayList<>(List.of(channel)));
 
@@ -128,7 +145,7 @@ public class ServerService {
                     }
 
                     ChannelCluster channelCluster = server.getChannelClusters().getFirst();
-                    Channel channel = channelCluster.getChannels().getFirst();
+                    ba.nosite.chatsystem.core.models.chat.Channel channel = channelCluster.getChannels().getFirst();
 
                     String finalAvatarIconUrl = result != null ? result.getFirst() : avatarIconUrl;
 
@@ -149,7 +166,7 @@ public class ServerService {
             List<ChannelCluster> channelClusters = server.getChannelClusters();
 
             ChatMessage defaultChatMessage = new ChatMessage("Greetings, User!", "Ratatoskr", MessageType.MESSAGE);
-            Channel defaultChannel = new Channel("General", new ArrayList<>(List.of(defaultChatMessage)));
+            ba.nosite.chatsystem.core.models.chat.Channel defaultChannel = new ba.nosite.chatsystem.core.models.chat.Channel("General", new ArrayList<>(List.of(defaultChatMessage)));
             ChannelCluster channelCluster = new ChannelCluster(channelClusterName, new ArrayList<>(List.of(defaultChannel)));
 
             channelClusters.add(channelCluster);
@@ -162,11 +179,11 @@ public class ServerService {
         serverRepository.findById(serverId).ifPresent(server -> {
             List<ChannelCluster> channelClusters = server.getChannelClusters();
             ChatMessage defaultChatMessage = new ChatMessage("Greetings, User!", "Ratatoskr", MessageType.MESSAGE);
-            Channel defaultChannel = new Channel(channelName, new ArrayList<>(List.of(defaultChatMessage)));
+            ba.nosite.chatsystem.core.models.chat.Channel defaultChannel = new ba.nosite.chatsystem.core.models.chat.Channel(channelName, new ArrayList<>(List.of(defaultChatMessage)));
 
             for (ChannelCluster cluster : channelClusters) {
                 if (cluster.get_id().equals(clusterId)) {
-                    List<Channel> channels = cluster.getChannels();
+                    List<ba.nosite.chatsystem.core.models.chat.Channel> channels = cluster.getChannels();
                     channels.add(defaultChannel);
                     cluster.setChannels(channels);
                     break;
@@ -184,7 +201,7 @@ public class ServerService {
 
         server.getChannelClusters().forEach(cluster -> {
             if (cluster.get_id().equals(clusterId)) {
-                List<Channel> channels = cluster.getChannels();
+                List<ba.nosite.chatsystem.core.models.chat.Channel> channels = cluster.getChannels();
 
                 channels = channels.stream()
                         .filter(channel -> !channelIdSet.contains(channel.get_id()))
@@ -222,9 +239,9 @@ public class ServerService {
         awsS3ImageService.deleteImage(imageUrl);
     }
 
-    private List<ChannelInfo> getChannelInfosWithoutChatMessages(List<Channel> channels) {
+    private List<Channel> getChannelInfosWithoutChatMessages(List<ba.nosite.chatsystem.core.models.chat.Channel> channels) {
         return channels.stream()
-                .map(channel -> new ChannelInfo(channel.get_id(), channel.getName()))
+                .map(channel -> new Channel(channel.get_id(), channel.getName()))
                 .collect(Collectors.toList());
     }
 }

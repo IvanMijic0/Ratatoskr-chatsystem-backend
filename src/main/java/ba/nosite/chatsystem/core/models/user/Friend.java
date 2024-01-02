@@ -5,6 +5,6 @@ public record Friend(
         String username,
         String fullName,
         String email,
-        String avatarUrl
+        String avatarImageUrl
 ) {
 }

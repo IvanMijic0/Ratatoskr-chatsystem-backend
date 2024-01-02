@@ -1,10 +1,7 @@
 package ba.nosite.chatsystem.core.models.chat;
 
-import org.springframework.data.mongodb.core.mapping.Document;
-
 import java.util.List;
 
-@Document(collection = "channel")
 public class Channel extends BaseChatEntity {
     private String name;
 

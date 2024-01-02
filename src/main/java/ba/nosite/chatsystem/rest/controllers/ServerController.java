@@ -57,9 +57,21 @@ public class ServerController {
         }
     }
 
-    @GetMapping("/channelClusters")
+    @GetMapping("/summary/{serverId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<?> findChannelsByServerId(@RequestParam String serverId) {
+    public ResponseEntity<?> findServerById(@PathVariable String serverId) {
+        try {
+            ServerInfoResponse serverInfoResponse = serverService.findServerById(serverId);
+
+            return ResponseEntity.ok().body(serverInfoResponse);
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/channelClusters/{serverId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<?> findChannelsByServerId(@PathVariable String serverId) {
         try {
             List<ChannelClusterInfo> channelInfoResponse = serverService.findChannelClustersByServerId(serverId);
 
@@ -150,9 +162,4 @@ public class ServerController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Server not found");
         }
     }
-
-//    @GetMapping("/refreshImages")
-//    public ResponseEntity<?> refreshImages() {
-//
-//    }
 }

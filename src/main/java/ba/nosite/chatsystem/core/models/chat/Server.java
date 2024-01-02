@@ -6,6 +6,7 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -17,10 +18,13 @@ public class Server {
     @Indexed
     private String ownerId;
     @DBRef(lazy = true)
-    private List<User> members;
-    private List<ChannelCluster> channelClusters;
+    private List<User> members = new ArrayList<>();
+    private List<ChannelCluster> channelClusters = new ArrayList<>();
     private String avatarIconUrl;
     private Date avatarIconUrlExpirationTime;
+
+    public Server() {
+    }
 
     public Server(String name, String ownerId, List<User> members, List<ChannelCluster> channelClusters, String avatarIconUrl, Date avatarIconUrlExpirationTime) {
         this.name = name;

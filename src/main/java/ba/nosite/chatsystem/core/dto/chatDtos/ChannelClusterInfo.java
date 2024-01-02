@@ -5,6 +5,6 @@ import java.util.List;
 public record ChannelClusterInfo(
         String id,
         String name,
-        List<ChannelInfo> channelInfos
+        List<Channel> channels
 ) {
 }
