@@ -113,7 +113,7 @@ public class UserController {
         }
     }
 
-    @PostMapping("/delete-friend/{friendId}")
+    @DeleteMapping("/delete-friend/{friendId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<UsersResponse> deleteFriend(
             @RequestHeader("Authorization") String authHeader,

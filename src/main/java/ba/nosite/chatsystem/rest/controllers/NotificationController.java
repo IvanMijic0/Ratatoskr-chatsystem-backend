@@ -6,6 +6,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @RestController
@@ -29,6 +31,13 @@ public class NotificationController {
     public ResponseEntity<Set<Notification>> getNotifications(@RequestHeader("Authorization") String authHeader) {
         Set<Notification> notifications = notificationService.getNotifications(authHeader);
         return ResponseEntity.ok(notifications);
+    }
+
+    @PostMapping("/usersStatus")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<Map<String, Set<Notification>>> getNotificationsByUserIds(@RequestBody List<String> userIds) {
+        Map<String, Set<Notification>> notificationsMap = notificationService.getNotificationsByUserIds(userIds);
+        return ResponseEntity.ok(notificationsMap);
     }
 
     @DeleteMapping()

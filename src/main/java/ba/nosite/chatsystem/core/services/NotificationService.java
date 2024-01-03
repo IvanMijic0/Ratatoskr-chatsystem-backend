@@ -1,14 +1,14 @@
 package ba.nosite.chatsystem.core.services;
 
 import ba.nosite.chatsystem.core.models.chat.Notification;
+import ba.nosite.chatsystem.core.models.chat.NotificationType;
 import ba.nosite.chatsystem.core.models.user.User;
 import ba.nosite.chatsystem.core.services.authServices.JwtService;
 import ba.nosite.chatsystem.core.services.redisServices.RedisSetService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static ba.nosite.chatsystem.core.services.authServices.JwtService.extractJwtFromHeader;
 
@@ -27,16 +27,49 @@ public class NotificationService {
         this.jwtService = jwtService;
     }
 
-    public void addNotification(String receiverId, Notification notification) {
-        String key = "notifications:".concat(receiverId);
-        redisSetService.addToSet(key, notification);
+    public void addNotification(String userId, Notification notification) {
+        try {
+            String key = "notifications:".concat(userId);
+            Set<Notification> existingNotifications = redisSetService.getSet(key, Notification.class);
+
+            if (existingNotifications == null) {
+                existingNotifications = new HashSet<>();
+            } else {
+                boolean hasUserStatusChangedNotification = existingNotifications.stream()
+                        .anyMatch(existingNotification -> existingNotification.getNotificationType() == NotificationType.USER_STATUS_CHANGED);
+
+                if (hasUserStatusChangedNotification) {
+                    existingNotifications.removeIf(existingNotification ->
+                            existingNotification.getNotificationType() == NotificationType.USER_STATUS_CHANGED);
+                }
+            }
+
+            existingNotifications.add(notification);
+            redisSetService.setSet(key, existingNotifications);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error adding notification to Redis", e);
+        }
     }
+
 
     public Set<Notification> getNotifications(String authHeader) {
         String userId = jwtService.extractCustomClaim(extractJwtFromHeader(authHeader), "user_id");
 
         String key = "notifications:".concat(userId);
         return redisSetService.getSet(key, Notification.class);
+    }
+
+    public Map<String, Set<Notification>> getNotificationsByUserIds(List<String> userIds) {
+        Map<String, Set<Notification>> notificationsMap = new HashMap<>();
+
+        userIds.forEach(userId -> {
+            String key = "notifications:".concat(userId);
+            Set<Notification> notifications = redisSetService.getSet(key, Notification.class);
+            notificationsMap.put(userId, notifications);
+        });
+
+        return notificationsMap;
     }
 
     public void removeNotification(String authHeader) {

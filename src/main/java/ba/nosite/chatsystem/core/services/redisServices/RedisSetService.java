@@ -1,6 +1,7 @@
 package ba.nosite.chatsystem.core.services.redisServices;
 
 import ba.nosite.chatsystem.core.services.JsonService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.SetOperations;
@@ -35,6 +36,25 @@ public class RedisSetService {
             redisTemplate.expire(key, expiration);
         } catch (Exception e) {
             throw new RuntimeException("Error adding to Redis set", e);
+        }
+    }
+
+    public void setSet(String key, Set<?> values) {
+        try {
+            Objects.requireNonNull(setOperations.members(key)).forEach(member -> setOperations.remove(key, member));
+
+            setOperations.add(key, values.stream()
+                    .map(value -> {
+                        try {
+                            return jsonService.toJson(value);
+                        } catch (JsonProcessingException e) {
+                            System.err.println("Error serializing object to JSON: " + value);
+                            throw new RuntimeException(e);
+                        }
+                    }).distinct().toArray(String[]::new));
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error setting Redis set", e);
         }
     }
 
